@@ -2,7 +2,7 @@
 from typing import List, Dict, Any
 import json
 from sqlalchemy import and_, or_, func
-from models import Program, db
+from backend.models import Program, db
 
 
 class RecommendationEngine:
