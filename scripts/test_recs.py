@@ -1,4 +1,4 @@
-# scripts/test_recommendations.py
+# scripts/test_recs.py
 import sys
 import os
 import json
@@ -70,7 +70,7 @@ time.sleep(2)
 # Test search endpoint
 try:
     response = requests.post(
-        "http://localhost:5000/api/programs/search",
+        "http://127.0.0.1:5000/api/programs/search",
         json=test_preferences,
         headers={"Content-Type": "application/json"},
     )
@@ -133,7 +133,7 @@ with app.app_context():
 # Test via API
 try:
     response = requests.post(
-        "http://localhost:5000/api/programs/compare",
+        "http://127.0.0.1:5000/api/programs/compare",
         json={"program_ids": program_ids},
         headers={"Content-Type": "application/json"},
     )

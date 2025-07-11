@@ -1,9 +1,10 @@
+# backend/app.py
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-from backend.api.programs import programs_bp
 from backend.models import db, Program
+from backend.api.programs import programs_bp
 
 load_dotenv()
 
@@ -25,15 +26,6 @@ def create_app():
     @app.route("/")
     def health_check():
         return {"status": "healthy", "message": "Abroadly API is running"}
-
-    @app.route("/api/test")
-    def test_db():
-
-        programs = Program.query.limit(5).all()
-        return {
-            "total_programs": Program.query.count(),
-            "sample_programs": [p.to_dict() for p in programs],
-        }
 
     app.register_blueprint(programs_bp, url_prefix="/api")
 
