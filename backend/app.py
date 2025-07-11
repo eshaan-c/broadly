@@ -3,11 +3,9 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
-# Import db from models using absolute import when running as a module
 try:
     from .models import db
 except ImportError:
-    # Fallback for when running directly
     from models import db
 
 load_dotenv()
