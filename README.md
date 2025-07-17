@@ -1,4 +1,4 @@
-# Abroadly
+# Broadly
 
 LLM-powered assistant that helps users make better decisions by turning natural language into structured decision frameworks.
 
