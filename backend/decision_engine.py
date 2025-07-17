@@ -1,8 +1,14 @@
-# backend/services/decision_engine.py
+# backend/decision_engine.py
 import json
-import openai
 from typing import Dict, List, Any
-from backend.models_decision import db
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv()
+
+# from models_decision import db
 
 
 class DecisionEngine:
@@ -11,8 +17,11 @@ class DecisionEngine:
     Uses two-stage LLM workflow for cost optimization.
     """
 
-    def __init__(self, api_key: str):
-        openai.api_key = api_key
+    def __init__(self):
+        self.client = OpenAI(
+            # This is the default and can be omitted
+            api_key=os.getenv("OPENAI_API_KEY"),
+        )
 
     def analyze_scenario(self, scenario: str, depth: str = "balanced") -> Dict:
         """
@@ -85,20 +94,20 @@ class DecisionEngine:
         """
 
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert decision analyst who creates structured frameworks for complex decisions.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.7,
-                max_tokens=2000,
-            )
+            # response = self.client.responses.create(
+            #     model="o4-mini-2025-04-16",
+            #     instructions="You are an expert decision analyst who creates structured frameworks for complex decisions.",
+            #     input=prompt,
+            #     # temperature=0.7,
+            #     # max_tokens=2000,
+            # )
 
-            framework = json.loads(response.choices[0].message.content)
+            # framework = json.loads(response.output_text)
+
+            with open("test/framework.json", "r") as f:
+                sample_json = json.load(f)
+
+            framework = sample_json
             framework["depth"] = depth
             framework["scenario_text"] = scenario
 
@@ -106,18 +115,21 @@ class DecisionEngine:
 
         except Exception as e:
             print(f"Error in scenario analysis: {e}")
-            # Fallback to a simple framework
-            return self._generate_fallback_framework(scenario, depth)
+            # return dummy data for fallback
+            return {}
 
     def evaluate_options(self, framework: Dict, responses: Dict) -> Dict:
         """
         Stage 2: Evaluate options based on responses using intelligent model routing
         """
-        # Calculate complexity score
-        complexity = self._calculate_complexity(framework, responses)
+        # TODO: Complexity assessment for model routing
 
-        # Route to appropriate model
-        model = "gpt-3.5-turbo" if complexity < 0.7 else "gpt-4"
+        # # Calculate complexity score
+        # complexity = self._calculate_complexity(framework, responses)
+        complexity = 0.8
+
+        # # Route to appropriate model
+        chosen_model = "gpt-3.5-turbo" if complexity < 0.7 else "o4-mini-2025-04-16"
 
         prompt = f"""
         Evaluate decision options based on user responses.
@@ -153,28 +165,24 @@ class DecisionEngine:
         """
 
         try:
-            response = openai.ChatCompletion.create(
-                model=model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are evaluating decision options based on structured criteria and user preferences.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.5,
-                max_tokens=1500,
+            response = self.client.responses.create(
+                model=chosen_model,
+                instructions="You are evaluating decision options based on structured criteria and user preferences.",
+                input=prompt,
+                # temperature=0.7,
+                # max_tokens=2000,
             )
 
-            evaluation = json.loads(response.choices[0].message.content)
-            evaluation["model_used"] = model
+            evaluation = json.loads(response.output_text)
+            evaluation["model_used"] = chosen_model
             evaluation["complexity_score"] = complexity
 
             return evaluation
 
         except Exception as e:
-            print(f"Error in evaluation: {e}")
-            return self._generate_simple_evaluation(framework, responses)
+            print(f"Error in scenario analysis: {e}")
+            # return dummy data for fallback
+            return {}
 
     def _calculate_complexity(self, framework: Dict, responses: Dict) -> float:
         """Calculate decision complexity for model routing"""

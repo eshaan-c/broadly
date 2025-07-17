@@ -1,0 +1,137 @@
+{
+    "complexity_score": 0.8,
+    "model_used": "o4-mini-2025-04-16",
+    "option_scores": {
+        "Caribbean (Jamaica)": {
+            "confidence": "medium",
+            "criteria_scores": {
+                "Accommodation Quality": 8.8,
+                "Available Activities": 8.8,
+                "Cultural Experience": 10.4,
+                "Group Preference Alignment": 7.8,
+                "Safety/Reputation": 7.2,
+                "Total Trip Cost": 9.0,
+                "Travel Time/Convenience": 7.8,
+                "Weather Reliability": 7.2
+            },
+            "strengths": [
+                "Rich local culture and good food",
+                "Decent cost and moderately short flights"
+            ],
+            "total_score": 67.0,
+            "weaknesses": [
+                "Moderate safety concerns in some areas",
+                "Weather risk during hurricane season"
+            ]
+        },
+        "Costa Rica": {
+            "confidence": "medium",
+            "criteria_scores": {
+                "Accommodation Quality": 6.6,
+                "Available Activities": 11.0,
+                "Cultural Experience": 10.4,
+                "Group Preference Alignment": 7.8,
+                "Safety/Reputation": 9.6,
+                "Total Trip Cost": 9.0,
+                "Travel Time/Convenience": 5.2,
+                "Weather Reliability": 7.2
+            },
+            "strengths": [
+                "Outstanding adventure activities and wildlife",
+                "Strong cultural and eco-tourism appeal"
+            ],
+            "total_score": 66.8,
+            "weaknesses": [
+                "Longer travel time and variable lodging quality",
+                "Rainy season may affect weather reliability"
+            ]
+        },
+        "Florida Keys": {
+            "confidence": "medium",
+            "criteria_scores": {
+                "Accommodation Quality": 8.8,
+                "Available Activities": 6.6,
+                "Cultural Experience": 5.2,
+                "Group Preference Alignment": 7.8,
+                "Safety/Reputation": 12.0,
+                "Total Trip Cost": 9.0,
+                "Travel Time/Convenience": 13.0,
+                "Weather Reliability": 7.2
+            },
+            "strengths": [
+                "Shortest travel time and high safety",
+                "Good lodging quality and reliable U.S. infrastructure"
+            ],
+            "total_score": 69.6,
+            "weaknesses": [
+                "Limited cultural immersion",
+                "Higher costs for U.S. destinations"
+            ]
+        },
+        "Hawaii": {
+            "confidence": "medium",
+            "criteria_scores": {
+                "Accommodation Quality": 11.0,
+                "Available Activities": 8.8,
+                "Cultural Experience": 7.8,
+                "Group Preference Alignment": 5.2,
+                "Safety/Reputation": 12.0,
+                "Total Trip Cost": 6.0,
+                "Travel Time/Convenience": 2.6,
+                "Weather Reliability": 9.6
+            },
+            "strengths": [
+                "High safety and excellent accommodation options",
+                "Reliable weather and good range of beach activities"
+            ],
+            "total_score": 63.0,
+            "weaknesses": [
+                "Long travel time and high cost",
+                "Less cultural immersion compared with other options"
+            ]
+        },
+        "Mexico (Canc\u00fan/Tulum)": {
+            "confidence": "high",
+            "criteria_scores": {
+                "Accommodation Quality": 8.8,
+                "Available Activities": 8.8,
+                "Cultural Experience": 13.0,
+                "Group Preference Alignment": 10.4,
+                "Safety/Reputation": 7.2,
+                "Total Trip Cost": 12.0,
+                "Travel Time/Convenience": 7.8,
+                "Weather Reliability": 7.2
+            },
+            "strengths": [
+                "Excellent cultural sites (Mayan ruins) and food",
+                "Balanced cost, safety, and short flight time"
+            ],
+            "total_score": 75.2,
+            "weaknesses": [
+                "Weather risk from storms in fall",
+                "Tourist areas can be crowded"
+            ]
+        }
+    },
+    "recommendation": {
+        "alternatives": [
+            "Florida Keys",
+            "Caribbean (Jamaica)",
+            "Costa Rica"
+        ],
+        "primary_choice": "Mexico (Canc\u00fan/Tulum)",
+        "reasoning": "Canc\u00fan/Tulum offers the best balance of cost, travel convenience, safety, cultural immersion, and appealing activities. It aligns closely with your group\u2019s desire for adventure (ruins, water sports), good food, moderate cost, and minimal long flights.",
+        "red_flags": [
+            "Potential for hurricane or tropical storms in fall",
+            "High tourist density in peak areas"
+        ]
+    },
+    "sensitivity_analysis": {
+        "critical_factors": [
+            "Relative importance of cost vs. cultural experience",
+            "Weather risk tolerance during hurricane season",
+            "Willingness to trade longer flights for better weather (e.g., Hawaii)"
+        ],
+        "robust_choice": "Mexico (Canc\u00fan/Tulum)"
+    }
+}

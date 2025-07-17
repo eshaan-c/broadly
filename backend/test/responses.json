@@ -1,0 +1,44 @@
+{
+    "answers": [
+        {
+            "question": "On a scale of 1 (not important) to 5 (very important), how important is minimizing the total trip cost?",
+            "type": "scale",
+            "response": "4",
+            "criteria_link": "Total Trip Cost"
+        },
+        {
+            "question": "On a scale of 1 (not important) to 5 (very important), how crucial is minimizing travel time and transfers?",
+            "type": "scale",
+            "response": "5",
+            "criteria_link": "Travel Time/Convenience"
+        },
+        {
+            "question": "Please rank the following factors in order of importance for your enjoyment, where 1 is most important: Weather Reliability, Cultural Experience, Accommodation Quality.",
+            "type": "rank",
+            "response": {
+                "1": "Cultural Experience",
+                "2": "Accommodation Quality",
+                "3": "Weather Reliability"
+            },
+            "criteria_link": "Weather Reliability, Cultural Experience, Accommodation Quality"
+        },
+        {
+            "question": "On a scale of 1 (not appealing) to 5 (very appealing), how appealing are the available activities (e.g., beaches, water sports, excursions)?",
+            "type": "scale",
+            "response": "5",
+            "criteria_link": "Available Activities"
+        },
+        {
+            "question": "Would you exclude any destination with a high safety risk or a current travel advisory?",
+            "type": "boolean",
+            "response": "Yes",
+            "criteria_link": "Safety/Reputation"
+        },
+        {
+            "question": "What specific preferences or priorities do you and your friends have for this trip?",
+            "type": "text",
+            "response": "We want somewhere adventurous but still relaxing, ideally with good food, safe vibes, and not too expensive. At least 2 of us need minimal travel time because of tight class schedules.",
+            "criteria_link": "Group Preference Alignment"
+        }
+    ]
+}
