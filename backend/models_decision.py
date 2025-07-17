@@ -63,7 +63,7 @@ class DecisionOption(db.Model):
     decision_id = db.Column(db.Integer, db.ForeignKey("decisions.id"), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
-    metadata = db.Column(JSONB)  # Flexible storage for any option attributes
+    # metadata = db.Column(JSONB)  # Flexible storage for any option attributes
     ai_inferred = db.Column(db.Boolean, default=False)
     position = db.Column(db.Integer)
 
@@ -76,7 +76,7 @@ class DecisionOption(db.Model):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "metadata": self.metadata,
+            # "metadata": self.metadata,
             "ai_inferred": self.ai_inferred,
             "position": self.position,
         }
@@ -120,7 +120,7 @@ class Question(db.Model):
     question_type = db.Column(
         db.String(50)
     )  # scale, boolean, text, ranking, multiple_choice
-    metadata = db.Column(JSONB)  # Store options, scale ranges, etc.
+    # metadata = db.Column(JSONB)  # Store options, scale ranges, etc.
     position = db.Column(db.Integer)
     criteria_link = db.Column(db.String(255))  # Which criteria this helps evaluate
 
@@ -134,7 +134,7 @@ class Question(db.Model):
             "id": self.id,
             "question_text": self.question_text,
             "question_type": self.question_type,
-            "metadata": self.metadata,
+            # "metadata": self.metadata,
             "position": self.position,
             "criteria_link": self.criteria_link,
         }
@@ -147,7 +147,7 @@ class UserResponse(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
     option_id = db.Column(db.Integer, db.ForeignKey("decision_options.id"))
     response_value = db.Column(db.Text)  # Flexible to store any response type
-    response_metadata = db.Column(JSONB)
+    # response_metadata = db.Column(JSONB)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -156,7 +156,7 @@ class UserResponse(db.Model):
             "question_id": self.question_id,
             "option_id": self.option_id,
             "response_value": self.response_value,
-            "response_metadata": self.response_metadata,
+            # "response_metadata": self.response_metadata,
         }
 
 
