@@ -1,0 +1,156 @@
+{
+    "context_factors": [
+        "Travel budget",
+        "Fall break dates and duration",
+        "Group size and composition",
+        "Passport and visa requirements",
+        "Health or COVID-19 advisories",
+        "Preferred activity types"
+    ],
+    "criteria": [
+        {
+            "category": "financial",
+            "description": "Estimates combined travel, lodging, meals, and activity expenses",
+            "name": "Total Trip Cost",
+            "weight": 0.15
+        },
+        {
+            "category": "practical",
+            "description": "Time and ease of reaching the destination, including flights and transfers",
+            "name": "Travel Time/Convenience",
+            "weight": 0.13
+        },
+        {
+            "category": "practical",
+            "description": "Probability of favorable weather conditions during fall break",
+            "name": "Weather Reliability",
+            "weight": 0.12
+        },
+        {
+            "category": "practical",
+            "description": "Overall safety, crime rates, and current travel advisories",
+            "name": "Safety/Reputation",
+            "weight": 0.12
+        },
+        {
+            "category": "emotional",
+            "description": "Range and quality of leisure and adventure activities",
+            "name": "Available Activities",
+            "weight": 0.11
+        },
+        {
+            "category": "emotional",
+            "description": "Availability and standard of lodging options",
+            "name": "Accommodation Quality",
+            "weight": 0.11
+        },
+        {
+            "category": "emotional",
+            "description": "Opportunities for local culture, cuisine, and immersion",
+            "name": "Cultural Experience",
+            "weight": 0.13
+        },
+        {
+            "category": "strategic",
+            "description": "Degree to which the destination meets group interests and preferences",
+            "name": "Group Preference Alignment",
+            "weight": 0.13
+        }
+    ],
+    "decision_type": "comparison",
+    "depth": "balanced",
+    "options": [
+        {
+            "description": "Island beaches, volcanic landscapes, and diverse activities",
+            "inferred": true,
+            "name": "Hawaii"
+        },
+        {
+            "description": "Tropical beaches, all-inclusive resorts, and local culture",
+            "inferred": true,
+            "name": "Caribbean (e.g., Jamaica)"
+        },
+        {
+            "description": "Resorts, nightlife, Mayan ruins, and coastal activities",
+            "inferred": true,
+            "name": "Mexico (Cancún/Tulum)"
+        },
+        {
+            "description": "Rainforests, eco-tourism, wildlife, and adventure sports",
+            "inferred": true,
+            "name": "Costa Rica"
+        },
+        {
+            "description": "US destination with easy travel, beaches, and water sports",
+            "inferred": true,
+            "name": "Florida Keys"
+        }
+    ],
+    "questions": [
+        {
+            "criteria_link": "Total Trip Cost",
+            "options": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+            ],
+            "text": "On a scale of 1 (not important) to 5 (very important), how important is minimizing the total trip cost?",
+            "type": "scale"
+        },
+        {
+            "criteria_link": "Travel Time/Convenience",
+            "options": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+            ],
+            "text": "On a scale of 1 (not important) to 5 (very important), how crucial is minimizing travel time and transfers?",
+            "type": "scale"
+        },
+        {
+            "criteria_link": "Weather Reliability, Cultural Experience, Accommodation Quality",
+            "options": [
+                "Weather Reliability",
+                "Cultural Experience",
+                "Accommodation Quality"
+            ],
+            "text": "Please rank the following factors in order of importance for your enjoyment, where 1 is most important: Weather Reliability, Cultural Experience, Accommodation Quality.",
+            "type": "rank"
+        },
+        {
+            "criteria_link": "Available Activities",
+            "options": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+            ],
+            "text": "On a scale of 1 (not appealing) to 5 (very appealing), how appealing are the available activities (e.g., beaches, water sports, excursions)?",
+            "type": "scale"
+        },
+        {
+            "criteria_link": "Safety/Reputation",
+            "options": [
+                "Yes",
+                "No"
+            ],
+            "text": "Would you exclude any destination with a high safety risk or a current travel advisory?",
+            "type": "boolean"
+        },
+        {
+            "criteria_link": "Group Preference Alignment",
+            "options": [],
+            "text": "What specific preferences or priorities do you and your friends have for this trip?",
+            "type": "text"
+        }
+    ],
+    "scenario_text": {
+        "scenario": "My friends and I want to go on vacation to somewhere tropical this fall break"
+    },
+    "title": "Selecting a Tropical Fall Break Vacation Destination"
+}

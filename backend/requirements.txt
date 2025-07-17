@@ -1,7 +1,8 @@
 flask==2.3.2
 flask-sqlalchemy==3.0.5
 flask-cors==4.0.0
+flask-session==0.5.0
 python-dotenv==1.0.0
 psycopg2-binary==2.9.7
-openai==0.27.8
+openai==1.97.0
 gunicorn==21.2.0
