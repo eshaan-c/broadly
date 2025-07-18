@@ -8,9 +8,9 @@ interface DepthOptionCardProps {
   title: string
   tagline: string
   examples: string[]
-  value: string
+  value: "quick" | "balanced" | "thorough"
   selected: boolean
-  onSelect: (value: string) => void
+  onSelect: (value: "quick" | "balanced" | "thorough") => void
 }
 
 export default function DepthOptionCard({ title, tagline, examples, value, selected, onSelect }: DepthOptionCardProps) {

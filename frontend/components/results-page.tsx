@@ -22,6 +22,13 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
         <CardContent className="max-h-[60vh] overflow-y-auto">
           <div className="space-y-8">
             <div>
+              <h3 className="text-lg font-medium mb-3">Recommendation</h3>
+              <div className="border-l-4 border-blue-500 pl-4 py-1">
+                <p className="text-sm">{result.recommendation}</p>
+              </div>
+            </div>
+
+            <div>
               <h3 className="text-lg font-medium mb-3">Options</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.options.map((option: any, index: number) => (
@@ -61,13 +68,6 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
                     <p className="text-sm text-gray-700">{criterion.analysis}</p>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-medium mb-3">Recommendation</h3>
-              <div className="border-l-4 border-blue-500 pl-4 py-1">
-                <p className="text-sm">{result.recommendation}</p>
               </div>
             </div>
           </div>

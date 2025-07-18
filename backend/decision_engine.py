@@ -91,23 +91,29 @@ class DecisionEngine:
         For 'quick' depth, focus on deal-breakers and primary drivers.
         For 'balanced' depth, cover main decision dimensions.
         For 'thorough' depth, include long-term implications and edge cases.
+        Respond with only valid JSON. Do not include any markdown, triple backticks, or explanatory text. Only return the JSON object.
         """
 
         try:
-            # response = self.client.responses.create(
-            #     model="o4-mini-2025-04-16",
-            #     instructions="You are an expert decision analyst who creates structured frameworks for complex decisions.",
-            #     input=prompt,
-            #     # temperature=0.7,
-            #     # max_tokens=2000,
-            # )
+            # Use a model appropriate for the task
+            if depth == "quick":
+                chosen_model = "gpt-4o-mini-2024-07-18"
+            else:
+                chosen_model = "o4-mini-2025-04-16"
 
-            # framework = json.loads(response.output_text)
+            print(f"Calling model: {chosen_model} for depth: {depth}")
+            response = self.client.responses.create(
+                model=chosen_model,
+                instructions="You are an expert decision analyst who creates structured frameworks for complex decisions.",
+                input=prompt,
+            )
+            print(f"Response: {response.output_text}")
+            framework = json.loads(response.output_text)
 
-            with open("test/framework.json", "r") as f:
-                sample_json = json.load(f)
+            # with open("test/framework.json", "r") as f:
+            #     sample_json = json.load(f)
 
-            framework = sample_json
+            # framework = sample_json
             framework["depth"] = depth
             framework["scenario_text"] = scenario
 
@@ -122,14 +128,12 @@ class DecisionEngine:
         """
         Stage 2: Evaluate options based on responses using intelligent model routing
         """
-        # TODO: Complexity assessment for model routing
 
-        # # Calculate complexity score
-        # complexity = self._calculate_complexity(framework, responses)
-        complexity = 0.8
-
-        # # Route to appropriate model
-        chosen_model = "gpt-3.5-turbo" if complexity < 0.7 else "o4-mini-2025-04-16"
+        depth = framework.get("depth", "balanced")
+        if depth == "quick":
+            chosen_model = "gpt-4o-mini-2024-07-18"
+        else:
+            chosen_model = "o4-mini-2025-04-16"
 
         prompt = f"""
         Evaluate decision options based on user responses.
@@ -139,7 +143,8 @@ class DecisionEngine:
         
         User Responses:
         {json.dumps(responses, indent=2)}
-        
+
+        Respond with only valid JSON. Do not include any markdown, triple backticks, or explanatory text. Only return the JSON object.
         Generate a JSON evaluation with:
         {{
             "option_scores": {{
@@ -165,6 +170,7 @@ class DecisionEngine:
         """
 
         try:
+            print(f"Calling model: {chosen_model} for evaluation")
             response = self.client.responses.create(
                 model=chosen_model,
                 instructions="You are evaluating decision options based on structured criteria and user preferences.",
@@ -174,8 +180,12 @@ class DecisionEngine:
             )
 
             evaluation = json.loads(response.output_text)
+
+            # with open("test/evaluation.json", "r") as f:
+            #     sample_json = json.load(f)
+
+            # evaluation = sample_json
             evaluation["model_used"] = chosen_model
-            evaluation["complexity_score"] = complexity
 
             return evaluation
 
