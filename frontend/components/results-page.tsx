@@ -142,7 +142,7 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
                           </div>
                         </div>
                         <p className="text-sm text-slate-400 leading-relaxed">
-                          {criterion.analysis.replace(/$$weight \d+%$$/, "").trim()}
+                          {criterion.analysis.replace(/\s*\(.*?weight \d+%.*?\)/, '').trim()}
                         </p>
                         {/* Visual weight indicator */}
                         <div className="mt-3 w-full bg-slate-800 rounded-full h-2">

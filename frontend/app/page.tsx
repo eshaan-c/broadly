@@ -106,7 +106,7 @@ export default function Home() {
             <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-200 via-white to-slate-300 bg-clip-text text-transparent mb-2">
               Broadly
             </h1>
-            <p className="text-slate-400 text-lg">AI-powered decision analysis</p>
+            <p className="text-slate-400 text-lg">AI-Powered Decision Frameworks</p>
           </div>
 
           {currentStep === "scenario" && (
@@ -126,7 +126,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="absolute bottom-4 text-center text-sm text-slate-500">
-          Built with 🧠 by Eshaan Chichula
+          by Eshaan ⌘
         </footer>
       </main>
     </div>
