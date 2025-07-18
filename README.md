@@ -4,7 +4,8 @@ LLM-powered tool helping users make better decisions by turning natural language
 
 Turn any decision into a personalized analysis framework using AI that understands your context.
 
-<img width="859" height="904" alt="image" src="https://github.com/user-attachments/assets/08644416-060c-47f6-b63e-6d49ad9ffc42" />  
+<img width="948" height="1007" alt="image" src="https://github.com/user-attachments/assets/407b563b-679c-47f5-a590-d6b7d48e6b3d" />
+
 
 <br />
 <br />
