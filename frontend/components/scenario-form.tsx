@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -41,6 +42,10 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
     "Deciding whether to go back to school for my MBA, pursue online certifications, or focus on climbing the ladder at my current company..."
   ];
 
+  const animatedPlaceholderRef = useRef(
+    <AnimatedPlaceholder placeholders={placeholderExamples} interval={9000} />
+  )
+
   const depthOptions = [
     {
       title: "Quick",
@@ -56,7 +61,7 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
     {
       title: "Balanced",
       value: "balanced" as const,
-      tagline: "Comprehensive yet efficient",
+      tagline: "Smart and efficient",
       examples: [
         "For decisions with moderate complexity",
         "Should I live alone, with roommates, or stay home next semester?",
@@ -78,7 +83,10 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
   ]
 
   return (
-    <Card className="w-full max-w-3xl mx-auto bg-slate-800/30 border-slate-700 backdrop-blur-sm shadow-2xl">
+    <Card
+      className="w-full max-w-3xl mx-auto bg-slate-800/30 border-slate-700 backdrop-blur-sm shadow-2xl"
+      style={{ minHeight: "600px" }} // Set a consistent minimum height for the form
+    >
       <CardContent className="pt-8 space-y-8">
         <form onSubmit={onSubmit} className="space-y-8">
           <div className="space-y-3">
@@ -93,7 +101,7 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
                 onChange={(e) => setScenario(e.target.value)}
                 required
               />
-              {!scenario && <AnimatedPlaceholder placeholders={placeholderExamples} interval={9000} />}
+              {!scenario && animatedPlaceholderRef.current}
             </div>
           </div>
 

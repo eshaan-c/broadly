@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import AnimatedTextCycler from "./animated-text-cycler"
 import { cn } from "@/lib/utils"
 import { Zap, Scale, Microscope } from "lucide-react"
 
@@ -51,6 +50,7 @@ export default function DepthOptionCard({ title, tagline, examples, value, selec
           : "border border-slate-600 hover:border-slate-500",
       )}
       onClick={() => onSelect(value)}
+      style={{ minHeight: "200px" }} // Set a consistent minimum height for the card
     >
       <CardContent className="p-6">
         <div className="flex flex-col items-center text-center space-y-4">
@@ -70,11 +70,6 @@ export default function DepthOptionCard({ title, tagline, examples, value, selec
           <div className="space-y-1">
             <h3 className="font-semibold text-lg text-slate-100">{title}</h3>
             <p className="text-sm text-slate-300">{tagline}</p>
-          </div>
-
-          {/* Animated examples */}
-          <div className="min-h-[48px] flex items-center">
-            <AnimatedTextCycler texts={examples} />
           </div>
 
           {/* Visual indicator */}

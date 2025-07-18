@@ -103,8 +103,8 @@ export default function Home() {
         <div className="w-full max-w-4xl">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-200 via-white to-slate-300 bg-clip-text text-transparent mb-2">
-              Broadly
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-200 via-white to-slate-300 bg-clip-text text-transparent mb-4">
+              broadly
             </h1>
             <p className="text-slate-400 text-lg">AI-Powered Decision Frameworks</p>
           </div>
@@ -126,7 +126,16 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="absolute bottom-4 text-center text-sm text-slate-500">
-          by Eshaan ⌘
+          by{" "}
+          <a
+            href="https://github.com/eshaan-c"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-slate-300"
+          >
+            Eshaan
+          </a>{" "}
+          ⌘
         </footer>
       </main>
     </div>
