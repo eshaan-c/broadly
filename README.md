@@ -2,7 +2,7 @@
 
 LLM-powered tool helping users make better decisions by turning natural language into structured decision frameworks.
 
-Turn any decision into a personalized analysis framework using AI that understands your context
+Turn any decision into a personalized analysis framework using AI that understands your context.
 
 <img width="859" height="904" alt="image" src="https://github.com/user-attachments/assets/08644416-060c-47f6-b63e-6d49ad9ffc42" />
 
