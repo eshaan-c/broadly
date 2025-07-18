@@ -8,6 +8,7 @@ Turn any decision into a personalized analysis framework using AI that understan
 
 <br />
 <br />
+
 Natural language input → No forms or frameworks to learn
 
 Personalized to user values → Questions about context, not generic evaluation
