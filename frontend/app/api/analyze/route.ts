@@ -4,61 +4,104 @@ export async function POST(request: Request) {
   try {
     const { scenario, depth } = await request.json()
 
-    // This is a mock implementation
-    // In a real app, you would call your Flask API here
-
     // Simulate processing time based on depth
     const processingTime = depth === "quick" ? 1000 : depth === "thorough" ? 3000 : 2000
-
     await new Promise((resolve) => setTimeout(resolve, processingTime))
 
-    // Mock response data
+    // Mock response matching your API structure
     const response = {
+      decision_type: "travel_choice",
+      title: "Tropical Fall Break Trip Decision",
       options: [
         {
-          name: "Job Offer A - New York",
-          pros: ["Higher salary ($120k)", "Prestigious company", "Career advancement opportunities"],
-          cons: ["Higher cost of living", "Longer commute", "More stressful work environment"],
+          name: "Belize",
+          description: "Central American paradise with barrier reef and jungle adventures",
+          inferred: false,
         },
         {
-          name: "Job Offer B - Austin",
-          pros: ["Good salary ($105k)", "Better work-life balance", "Lower cost of living", "Emerging tech hub"],
-          cons: ["Less prestigious company", "Potentially slower career growth", "Relocation required"],
+          name: "Costa Rica",
+          description: "Eco-tourism destination with beaches, rainforests, and wildlife",
+          inferred: false,
+        },
+        {
+          name: "Barbados",
+          description: "Caribbean island with pristine beaches and vibrant culture",
+          inferred: true,
         },
       ],
       criteria: [
         {
-          name: "Financial Impact",
-          analysis:
-            "While Job A offers a higher nominal salary, Job B may provide better financial outcomes when adjusted for cost of living differences.",
+          name: "Budget",
+          description: "Total cost including flights, accommodation, and activities",
+          weight: 0.3,
+          category: "financial",
         },
         {
-          name: "Career Growth",
-          analysis:
-            "Job A offers more immediate prestige and potential for advancement, while Job B may provide more balanced growth over time.",
+          name: "Activities",
+          description: "Variety and quality of available activities and experiences",
+          weight: 0.25,
+          category: "experience",
         },
         {
-          name: "Quality of Life",
-          analysis: "Job B appears to offer better work-life balance and potentially less stressful environment.",
+          name: "Safety",
+          description: "Overall safety and security for travelers",
+          weight: 0.2,
+          category: "practical",
+        },
+        {
+          name: "Weather",
+          description: "Climate conditions during your travel dates",
+          weight: 0.15,
+          category: "environmental",
+        },
+        {
+          name: "Accessibility",
+          description: "Ease of travel and getting around",
+          weight: 0.1,
+          category: "practical",
         },
       ],
-      recommendation:
-        "Based on your scenario, Job B in Austin appears to align better with long-term happiness factors, though Job A offers stronger immediate career benefits. Consider what you value more: career acceleration or lifestyle quality.",
-    }
-
-    // Add more detailed analysis for thorough depth
-    if (depth === "thorough") {
-      response.criteria.push({
-        name: "Long-term Career Trajectory",
-        analysis:
-          "Consider how each role positions you for future opportunities. The New York position may open doors to other prestigious firms, while the Austin role could connect you to the growing tech ecosystem there.",
-      })
-
-      response.criteria.push({
-        name: "Personal Factors",
-        analysis:
-          "Consider your personal preferences for city size, climate, proximity to family/friends, and lifestyle options in each location.",
-      })
+      questions: [
+        {
+          text: "What's your total budget per person for this trip?",
+          type: "scale",
+          min: 1000,
+          max: 5000,
+          minLabel: "$1,000",
+          maxLabel: "$5,000+",
+          criteria_link: "Budget",
+        },
+        {
+          text: "How important are adventure activities vs relaxation?",
+          type: "scale",
+          min: 1,
+          max: 10,
+          minLabel: "Pure relaxation",
+          maxLabel: "Adventure focused",
+          criteria_link: "Activities",
+        },
+        {
+          text: "Rank these factors by importance to your group",
+          type: "rank",
+          options: ["Beach quality", "Nightlife", "Cultural experiences", "Adventure sports", "Food scene"],
+          criteria_link: "Activities",
+        },
+        {
+          text: "Are you comfortable with basic Spanish for communication?",
+          type: "boolean",
+          labels: ["No", "Yes"],
+          criteria_link: "Accessibility",
+        },
+        {
+          text: "Any specific activities or experiences you're hoping for?",
+          type: "text",
+          placeholder: "e.g., snorkeling, zip-lining, cultural tours...",
+          criteria_link: "Activities",
+        },
+      ],
+      context_factors: ["Group size", "Travel dates", "Previous travel experience"],
+      depth: depth,
+      scenario_text: scenario,
     }
 
     return NextResponse.json(response)

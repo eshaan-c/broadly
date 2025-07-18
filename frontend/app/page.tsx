@@ -3,250 +3,132 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Loader2 } from "lucide-react"
-import QuestionsPage from "@/components/questions-page"
-import ResultsPage from "@/components/results-page"
-import DepthOptionCard from "@/components/depth-option-card"
+import ScenarioForm from "@/components/scenario-form"
+import QuestionForm from "@/components/question-form"
+import Results from "@/components/results"
+import LoadingScreen from "@/components/loading-screen"
+import { decisionAPI, AnalyzeResponse } from "@/lib/api"
 
-import { decisionAPI, type AnalyzeResponse, type EvaluateResponse } from "@/lib/api"
-
+type Step = "scenario" | "questions" | "results"
 
 export default function Home() {
   const [scenario, setScenario] = useState("")
   const [depth, setDepth] = useState<"quick" | "balanced" | "thorough">("balanced")
+  const [currentStep, setCurrentStep] = useState<Step>("scenario")
   const [loading, setLoading] = useState(false)
-  const [currentStep, setCurrentStep] = useState("input") // "input", "questions", "results"
-  const [framework, setFramework] = useState<AnalyzeResponse | null>(null)
+  const [loadingMessage, setLoadingMessage] = useState("")
   const [questions, setQuestions] = useState<any[]>([])
   const [result, setResult] = useState<any>(null)
+  const [framework, setFramework] = useState<AnalyzeResponse | null>(null)
 
-  const depthOptions = [
-    {
-      title: "Quick",
-      value: "quick" as const,
-      tagline: "Fast, essential insights",
-      examples: [
-        "For everyday choices or tight schedules",
-        "Should I cook or order takeout tonight?",
-        "Do I go to the gym now or later?",
-        "Should I text them back or leave it?",
-      ],
-    },
-    {
-      title: "Balanced",
-      value: "balanced" as const,
-      tagline: "Comprehensive yet efficient",
-      examples: [
-        "For decisions with moderate complexity",
-        "Should I live alone, with roommates, or stay home next semester?",
-        "Intern at a startup, big tech firm, or do research this summer?",
-        "Spend more time on school, social life, or side projects this fall?",
-      ],
-    },
-    {
-      title: "Thorough",
-      value: "thorough" as const,
-      tagline: "Deep, nuanced analysis",
-      examples: [
-        "For life-changing decisions",
-        "I got offers from Goldman (IB), McKinsey (consulting), and a Wharton research role — how do I decide?",
-        "Should I take time off school, power through, or try to reduce my load?",
-        "I feel lost — do I focus on career, reconnect with family, or travel for perspective?",
-      ],
-    },
-  ]
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  /* ------- first step: /analyze ------- */
+  const handleAnalyze = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setLoadingMessage("Analyzing your scenario...")
 
     try {
-      // First API call
-      const response = await decisionAPI.analyze({ scenario, depth });
+      const data = await decisionAPI.analyze({ scenario, depth })
 
-      // Initialize the options array from the first API response
-      const initialOptions = response.options.map((option: any) => ({
-        name: option.name,
-        description: option.description,
-        inferred: option.inferred,
-      }));
-
-      const transformedQuestions = response.questions.map((q, index) => ({
-        id: `q_${index}`,
-        type: q.type,
+      // transform questions
+      const qs = data.questions.map((q: any, idx: number) => ({
+        id: `q_${idx}`,
         question: q.text,
-        ...(q.type === "scale" && {
-          min: q.min,
-          max: q.max,
-          minLabel: q.minLabel,
-          maxLabel: q.maxLabel,
-        }),
-        ...(q.type === "rank" && {
-          options: q.options || [],
-        }),
-        ...(q.type === "boolean" && {
-          labels: ["No", "Yes"],
-        }),
-        ...(q.type === "text" && {
-          placeholder: "Enter your response...",
-        }),
-        criteria_link: q.criteria_link,
-      }));
+        type: q.type,
+        ...q,
+      }))
 
-      setFramework({ ...response, initialOptions }); // Save initial options in the framework
-      setQuestions(transformedQuestions);
-      setCurrentStep("questions");
-    } catch (error) {
-      console.error("Error analyzing scenario:", error);
+      setFramework(data)
+      setQuestions(qs)
+      setCurrentStep("questions")
+    } catch (err) {
+      console.error("Analyze failed:", err)
+      alert("Analysis failed. Please try again.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  const handleQuestionsSubmit = async (answers: Record<string, any>) => {
-    setLoading(true);
-
-    try {
-      if (!framework) {
-        throw new Error("No framework available");
-      }
-
-      const transformedResponses: Record<string, any> = {};
-      Object.entries(answers).forEach(([key, value]) => {
-        const index = key.replace("q_", "");
-        transformedResponses[index] = value;
-      });
-
-      // Second API call
-      const evaluation = await decisionAPI.evaluate({
-        framework,
-        responses: transformedResponses,
-      });
-
-      // Merge the initial options with the evaluation results
-      const mergedOptions = framework.initialOptions.map((option: any) => ({
-        ...option,
-        ...evaluation.option_scores[option.name], // Merge scores and other data
-      }));
-
-      const transformedResult = {
-        options: mergedOptions.map((option: any) => ({
-          name: option.name,
-          description: option.description,
-          inferred: option.inferred,
-          pros: option.strengths,
-          cons: option.weaknesses,
-          score: option.total_score,
-          confidence: option.confidence,
-        })),
-        criteria: framework.criteria.map((criterion) => ({
-          name: criterion.name,
-          analysis: `Weight: ${(criterion.weight * 100).toFixed(0)}% - ${criterion.description}`,
-          scores: Object.entries(evaluation.option_scores).reduce(
-            (acc, [optionName, scores]) => {
-              acc[optionName] = scores.criteria_scores[criterion.name] || 0;
-              return acc;
-            },
-            {} as Record<string, number>
-          ),
-        })),
-        recommendation: evaluation.recommendation.reasoning,
-        primaryChoice: evaluation.recommendation.primary_choice,
-        alternatives: evaluation.recommendation.alternatives,
-        redFlags: evaluation.recommendation.red_flags,
-      };
-
-      setResult(transformedResult);
-      setCurrentStep("results");
-    } catch (error) {
-      console.error("Error analyzing decision:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetToStart = () => {
-    setCurrentStep("input")
-    setScenario("")
-    setDepth("balanced")
-    setFramework(null)
-    setResult(null)
-    setQuestions([])
   }
 
+  /* ------- second step: /evaluate ------- */
+  const handleEvaluate = async (answers: Record<string, any>) => {
+    if (!framework) return
+    setLoading(true)
+    setLoadingMessage("Generating recommendations...")
+
+    try {
+      const res = await decisionAPI.evaluate({
+        framework,
+        responses: answers,
+      })
+
+      // Transform the response to match what ResultsPage expects
+      const merged = {
+        ...res,
+        options: framework.options.map((opt: any) => ({
+          name: opt.name,
+          description: opt.description,
+          inferred: opt.inferred,
+          pros: res.option_scores[opt.name]?.strengths || [],
+          cons: res.option_scores[opt.name]?.weaknesses || [],
+          score: res.option_scores[opt.name]?.total_score || 0,
+          confidence: res.option_scores[opt.name]?.confidence || "medium",
+        })),
+        criteria: framework.criteria.map((c: any) => ({
+          name: c.name,
+          analysis: `${c.description} (weight ${(c.weight * 100).toFixed(0)}%)`,
+        })),
+        primaryChoice: res.recommendation.primary_choice,
+        recommendation: res.recommendation.reasoning,
+        redFlags: res.recommendation.red_flags,
+      }
+
+      setResult(merged)
+      setCurrentStep("results")
+    } catch (err) {
+      console.error("Evaluate failed:", err)
+      alert("Evaluation failed. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-white">
-      <div className="w-full max-w-2xl">
-        <h1 className="text-3xl font-bold text-center mb-8">Broadly</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800/20 via-slate-900/50 to-slate-950"></div>
 
-        {currentStep === "input" && (
-          <Card className="mb-8">
-            <CardContent className="pt-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="scenario" className="text-base">
-                    Describe your decision scenario
-                  </Label>
-                  <Textarea
-                    id="scenario"
-                    placeholder="My friends and I are trying to decide a place to go for a tropical fall break trip."
-                    className="min-h-[120px] resize-none"
-                    value={scenario}
-                    onChange={(e) => setScenario(e.target.value)}
-                    required
-                  />
-                </div>
+      <main className="relative min-h-screen flex flex-col items-center justify-center px-4 py-8">
+        {loading && <LoadingScreen message={loadingMessage} />}
 
-                <div className="space-y-3">
-                  <Label className="text-base">Analysis Depth</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {depthOptions.map((option) => (
-                      <DepthOptionCard
-                        key={option.value}
-                        title={option.title}
-                        tagline={option.tagline}
-                        examples={option.examples}
-                        value={option.value}
-                        selected={depth === option.value}
-                        onSelect={setDepth}
-                      />
-                    ))}
-                  </div>
-                </div>
+        <div className="w-full max-w-4xl">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-200 via-white to-slate-300 bg-clip-text text-transparent mb-2">
+              Broadly
+            </h1>
+            <p className="text-slate-400 text-lg">AI-Powered Decision Frameworks</p>
+          </div>
 
-                <Button type="submit" className="w-full" disabled={loading || !scenario.trim()}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    "Continue"
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        )}
+          {currentStep === "scenario" && (
+            <ScenarioForm
+              scenario={scenario}
+              setScenario={setScenario}
+              depth={depth}
+              setDepth={setDepth}
+              onSubmit={handleAnalyze}
+            />
+          )}
 
-        {currentStep === "questions" && (
-          <QuestionsPage
-            questions={questions}
-            onSubmit={handleQuestionsSubmit}
-            onBack={() => setCurrentStep("input")}
-            loading={loading}
-          />
-        )}
+          {currentStep === "questions" && <QuestionForm questions={questions} onSubmit={handleEvaluate} />}
 
-        {currentStep === "results" && <ResultsPage result={result} onBack={resetToStart} />}
+          {currentStep === "results" && result && <Results result={result} />}
+        </div>
 
-        <footer className="text-center text-sm text-gray-500 mt-8">Built by Eshaan Chichula</footer>
-      </div>
-    </main>
+        {/* Footer */}
+        <footer className="absolute bottom-4 text-center text-sm text-slate-500">
+          by Eshaan ⌘
+        </footer>
+      </main>
+    </div>
   )
 }
