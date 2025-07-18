@@ -1,6 +1,6 @@
 # Broadly
 
-LLM-powered tool that helps users make better decisions by turning natural language into structured decision frameworks.
+LLM-powered tool helping users make better decisions by turning natural language into structured decision frameworks.
 
 <img width="859" height="904" alt="image" src="https://github.com/user-attachments/assets/08644416-060c-47f6-b63e-6d49ad9ffc42" />
 
