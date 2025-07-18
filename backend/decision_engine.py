@@ -30,21 +30,21 @@ class DecisionEngine:
         depth_configs = {
             "quick": {
                 "time": "30 seconds",
-                "questions": 2,
-                "criteria": 4,
-                "description": "Essential factors only",
+                "questions": "1–3",
+                "criteria": "2–5",
+                "description": "Just the essentials; focus on surface-level distinctions",
             },
             "balanced": {
                 "time": "3 minutes",
-                "questions": 6,
-                "criteria": 8,
-                "description": "Key dimensions covered",
+                "questions": "4–7",
+                "criteria": "6–9",
+                "description": "Well-rounded view across major considerations",
             },
             "thorough": {
                 "time": "10 minutes",
-                "questions": 12,
-                "criteria": 12,
-                "description": "Comprehensive analysis",
+                "questions": "8–14",
+                "criteria": "10–14",
+                "description": "Comprehensive breakdown with thoughtful depth",
             },
         }
 

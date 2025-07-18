@@ -18,14 +18,28 @@ interface Props {
 
 export default function ScenarioForm({ scenario, setScenario, depth, setDepth, onSubmit }: Props) {
   const placeholderExamples = [
-    "My friends and I are trying to decide a place to go for a tropical fall break trip...",
-    "I'm torn between three job offers - one at a startup, one at a big tech company, and one at a consulting firm. Each has different benefits and trade-offs...",
-    "Should I study abroad next semester or stay on campus? I'm weighing the academic benefits against the cost and being away from friends...",
-    "I'm considering whether to move to a new city after graduation or stay in my hometown. There are pros and cons to both options...",
-    "My lease is up and I need to decide: live alone in a studio, get roommates in a bigger place, or move back home to save money...",
-    "I got into two graduate programs - one is more prestigious but expensive, the other offers funding but is less well-known...",
-    "Should I take a gap year to travel and work, or go straight to college? I'm unsure about what path would be better for my future...",
-  ]
+    // Quick Depth - Everyday decisions
+    "My car needs $3k in repairs but it's 12 years old. Should I fix it, buy used, or lease something new? I drive about 20 miles daily for work...",
+    "Debating whether to renew my gym membership, switch to the new climbing gym, or just invest in home equipment. I've been going 2-3x per week...",
+    "My manager offered me a lateral move to a different team with more interesting work but a longer commute. Need to decide by Friday...",
+
+    // Balanced Depth - Moderate complexity
+    "Considering switching careers from marketing to UX design. Would need to do a bootcamp or self-study while working. I'm 28 and have 5 years experience...",
+    "My partner got a job offer in Denver. We need to decide if we both move, try long-distance, or if they should turn it down. We've been together 3 years...",
+    "Choosing between staying at my stable corporate job or joining my friend's startup as employee #5. The equity could be huge but it's risky...",
+
+    // Thorough Depth - Life-changing decisions
+    "After 10 years in tech, I'm burned out and considering opening a small bakery. I have savings but would need to take out loans. My spouse is supportive but worried...",
+    "We're deciding whether to have kids in the next year or wait. I'm 32, partner is 35. Careers are going well but we're unsure about timing and lifestyle changes...",
+    "Got into medical school but also have a compelling job offer at a health tech company. One path leads to MD, the other could lead to founding my own company...",
+
+    // Mixed complexity scenarios
+    "My startup was acqui-hired and I need to decide: vest and stay 2 years, leave and forfeit equity, or negotiate a different package...",
+    "Inherited my grandmother's house in my hometown. Should I sell it, rent it out, or move back and work remotely? I left that town for good reasons...",
+    "My best friend wants me to be her business partner in a new venture. Excited about the idea but worried about mixing friendship with business...",
+    "Company offered me a promotion that requires relocating to Singapore for 2-3 years. Great for career but I'd be far from aging parents...",
+    "Deciding whether to go back to school for my MBA, pursue online certifications, or focus on climbing the ladder at my current company..."
+  ];
 
   const depthOptions = [
     {
@@ -79,7 +93,7 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
                 onChange={(e) => setScenario(e.target.value)}
                 required
               />
-              {!scenario && <AnimatedPlaceholder placeholders={placeholderExamples} interval={7000} />}
+              {!scenario && <AnimatedPlaceholder placeholders={placeholderExamples} interval={9000} />}
             </div>
           </div>
 
