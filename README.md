@@ -5,7 +5,8 @@ LLM-powered tool helping users make better decisions by turning natural language
 Turn any decision into a personalized analysis framework using AI that understands your context.
 
 <img width="859" height="904" alt="image" src="https://github.com/user-attachments/assets/08644416-060c-47f6-b63e-6d49ad9ffc42" />  
-  
+##
+##
 Natural language input → No forms or frameworks to learn
 
 Personalized to user values → Questions about context, not generic evaluation
@@ -16,7 +17,8 @@ Depth flexibility → From 2-minute gut checks to deep analysis
 
 Unbiased mirror → Reflects priorities back, doesn't judge
   
-
+##
+##
 ## Installation
 
 1. Clone the repository:
