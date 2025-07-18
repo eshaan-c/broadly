@@ -2,6 +2,9 @@
 
 LLM-powered tool that helps users make better decisions by turning natural language into structured decision frameworks.
 
+<img width="921" height="1277" alt="image" src="https://github.com/user-attachments/assets/17b0ad39-5777-4284-bd13-eb11032b5672" />
+
+
 ## Installation
 
 1. Clone the repository:
