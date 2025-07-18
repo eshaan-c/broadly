@@ -22,12 +22,34 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
         <CardContent className="max-h-[60vh] overflow-y-auto">
           <div className="space-y-8">
             <div>
+              <h3 className="text-lg font-medium mb-3">Primary Choice</h3>
+              <div className="border-l-4 border-green-500 pl-4 py-1 mb-4">
+                <p className="text-base font-semibold">{result.primaryChoice}</p>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium mb-3">Recommendation</h3>
+              <div className="border-l-4 border-blue-500 pl-4 py-1 mb-2">
+                <p className="text-sm">{result.recommendation}</p>
+              </div>
+              {result.red_flags && (
+                <div className="mt-2">
+                  <p className="text-sm text-red-600">{result.red_flags}</p>
+                </div>
+              )}
+            </div>
+
+            <div>
               <h3 className="text-lg font-medium mb-3">Options</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.options.map((option: any, index: number) => (
                   <Card key={index} className="bg-slate-50">
-                    <CardHeader className="pb-2">
+                    <CardHeader className="pb-2 flex flex-col items-start">
                       <CardTitle className="text-base">{option.name}</CardTitle>
+                      <p className="text-sm text-gray-500">{option.description}</p> {/* Added subtitle */}
+                      <span className="text-sm font-semibold text-gray-700 mt-1">
+                        Score: {option.score}
+                      </span>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
@@ -61,13 +83,6 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
                     <p className="text-sm text-gray-700">{criterion.analysis}</p>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-medium mb-3">Recommendation</h3>
-              <div className="border-l-4 border-blue-500 pl-4 py-1">
-                <p className="text-sm">{result.recommendation}</p>
               </div>
             </div>
           </div>

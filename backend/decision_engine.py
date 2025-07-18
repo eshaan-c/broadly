@@ -51,19 +51,19 @@ class DecisionEngine:
         config = depth_configs.get(depth, depth_configs["balanced"])
 
         prompt = f"""
-        Analyze this decision scenario and create a structured framework.
+        Start by extracting key personal context—goals, values, constraints, emotions—from the user’s scenario. Infer logical decision options if not all are stated; do not assume the user is aware of inferred options.
+        Then construct a structured evaluation framework.
         
         User Scenario: "{scenario}"
-        
         Analysis Depth: {depth} ({config['description']})
         Time Budget: {config['time']}
         
-        Generate a JSON response with exactly this structure:
+        Respond in **valid JSON only** with this structure:
         {{
             "decision_type": "classification like: comparison, yes_no, open_ended, career, purchase, life_choice",
-            "title": "A clear, concise title for this decision",
+            "title": "Concise decision title",
             "options": [
-                {{"name": "Option 1", "description": "Brief description", "inferred": true/false}},
+                {{"name": "Option 1 name", "description": "Brief description", "inferred": true/false}},
                 // Extract explicit options or infer logical ones
             ],
             "criteria": [
@@ -80,34 +80,48 @@ class DecisionEngine:
                     "text": "Question text",
                     "type": "scale/rank/boolean/text",
                     "options": [], // For multiple choice
-                    "criteria_link": "Which criterion this helps evaluate"
+                    "criteria_link": "Which criterion this helps evaluate",
+                    "min": 1, // For scale type questions, specify minimum value
+                    "max": 5, // For scale type questions, specify maximum value
+                    "minLabel": "Lowest value meaning", // For scale type questions, specify label for minimum value
+                    "maxLabel": "Highest value meaning" // For scale type questions, specify label for maximum value
                 }}
                 // Generate {config['questions']} questions
             ],
             "context_factors": ["Key contextual elements identified"]
         }}
         
-        Ensure questions directly support evaluation of the criteria.
-        For 'quick' depth, focus on deal-breakers and primary drivers.
-        For 'balanced' depth, cover main decision dimensions.
-        For 'thorough' depth, include long-term implications and edge cases.
+        Guidelines by depth level:
+        - quick: Focus on top-level drivers and gut checks.
+        - balanced: Cover emotional, practical, and strategic factors evenly.
+        - thorough: Add stress points, edge cases, and long-term consequences.
+        Ensure:
+        If you include questions that reference a specific option or tradeoff, do not refer to it vaguely (e.g., ‘this option’) — instead, explicitly describe the idea directly in the question
+        At least 2 questions must not be scale-based. Ensure all questions directly inform the criteria or reveal tradeoffs. Leave room for user to clarify unknowns via open text prompts.
+        Output must be valid JSON only. Do not include markdown or explanations.
         """
 
         try:
-            # response = self.client.responses.create(
-            #     model="o4-mini-2025-04-16",
-            #     instructions="You are an expert decision analyst who creates structured frameworks for complex decisions.",
-            #     input=prompt,
-            #     # temperature=0.7,
-            #     # max_tokens=2000,
-            # )
+            # Use a model appropriate for the task
+            if depth == "quick":
+                chosen_model = "gpt-4o-mini-2024-07-18"
+            else:
+                # chosen_model = "o4-mini-2025-04-16"
+                # gpt 4.1 test
+                chosen_model = "gpt-4.1-2025-04-14"
 
-            # framework = json.loads(response.output_text)
+            print(f"Calling model: {chosen_model} for depth: {depth}")
+            response = self.client.responses.create(
+                model=chosen_model,
+                instructions="You are an expert decision analyst who builds structured, personalized frameworks to navigate complex choices.",
+                input=prompt,
+            )
+            framework = json.loads(response.output_text)
 
-            with open("test/framework.json", "r") as f:
-                sample_json = json.load(f)
+            # with open("test/framework.json", "r") as f:
+            #     sample_json = json.load(f)
 
-            framework = sample_json
+            # framework = sample_json
             framework["depth"] = depth
             framework["scenario_text"] = scenario
 
@@ -122,60 +136,79 @@ class DecisionEngine:
         """
         Stage 2: Evaluate options based on responses using intelligent model routing
         """
-        # TODO: Complexity assessment for model routing
 
-        # # Calculate complexity score
-        # complexity = self._calculate_complexity(framework, responses)
-        complexity = 0.8
-
-        # # Route to appropriate model
-        chosen_model = "gpt-3.5-turbo" if complexity < 0.7 else "o4-mini-2025-04-16"
+        depth = framework.get("depth", "balanced")
+        if depth == "quick":
+            chosen_model = "gpt-4o-mini-2024-07-18"
+        else:
+            # chosen_model = "o4-mini-2025-04-16"
+            # gpt 4.1 test
+            chosen_model = "gpt-4.1-2025-04-14"
 
         prompt = f"""
-        Evaluate decision options based on user responses.
-        
-        Decision Framework:
+        DECISION FRAMEWORK:
         {json.dumps(framework, indent=2)}
-        
-        User Responses:
+
+        USER RESPONSES:
         {json.dumps(responses, indent=2)}
-        
-        Generate a JSON evaluation with:
+
+        ANALYSIS INSTRUCTIONS:
+        1. Calculate weighted scores by multiplying each criterion score by its weight
+        2. Look for patterns, trade-offs, and synergies between criteria
+        3. Consider both quantitative scores and qualitative insights
+        4. Identify non-obvious strengths/weaknesses beyond surface-level observations
+        5. Assess confidence based on response clarity, data quality, and alignment consistency
+        6. Provide actionable insights that help the user understand WHY certain options perform better
+        7. Consider uncertainty and what could change the recommendation
+
+        RESPONSE REQUIREMENTS:
+        - Respond with ONLY valid JSON (no markdown, backticks, or explanations)
+        - Scores should reflect weighted calculations, not just averages
+        - Strengths/weaknesses should be specific and actionable, not generic
+        - Reasoning should connect user values to option performance
+        - Red flags should identify genuine risks or concerns
+        - Critical factors should highlight decision sensitivity
+
+        JSON Schema:
         {{
             "option_scores": {{
                 "Option Name": {{
                     "total_score": 0-100,
-                    "criteria_scores": {{"criterion": score}},
-                    "strengths": ["List of strengths"],
-                    "weaknesses": ["List of weaknesses"],
+                    "criteria_scores": {{"criterion": weighted_score}},
+                    "strengths": ["Specific advantages based on user priorities"],
+                    "weaknesses": ["Specific disadvantages with context"],
                     "confidence": "high/medium/low"
                 }}
             }},
             "recommendation": {{
-                "primary_choice": "Recommended option",
-                "reasoning": "Clear explanation",
-                "alternatives": ["Other viable options"],
-                "red_flags": ["Any concerns to consider"]
+                "primary_choice": "Recommended option name",
+                "reasoning": "Multi-sentence explanation connecting user values to option performance",
+                "alternatives": ["Viable alternatives with brief context"],
+                "red_flags": ["Specific risks or concerns to monitor"]
             }},
             "sensitivity_analysis": {{
-                "critical_factors": ["Factors that could change the recommendation"],
-                "robust_choice": "Option that performs well across scenarios"
+                "critical_factors": ["Factors that could significantly change the recommendation"],
+                "robust_choice": "Option that performs consistently across different scenarios"
             }}
-        }}
-        """
+        }}"""
 
         try:
+            print(f"Calling model: {chosen_model} for evaluation")
             response = self.client.responses.create(
                 model=chosen_model,
-                instructions="You are evaluating decision options based on structured criteria and user preferences.",
+                instructions="You are an expert decision analyst tasked with evaluating options using a structured framework. Your analysis should be thorough, nuanced, and actionable.",
                 input=prompt,
                 # temperature=0.7,
                 # max_tokens=2000,
             )
 
             evaluation = json.loads(response.output_text)
+
+            # with open("test/evaluation.json", "r") as f:
+            #     sample_json = json.load(f)
+
+            # evaluation = sample_json
             evaluation["model_used"] = chosen_model
-            evaluation["complexity_score"] = complexity
 
             return evaluation
 
@@ -183,51 +216,3 @@ class DecisionEngine:
             print(f"Error in scenario analysis: {e}")
             # return dummy data for fallback
             return {}
-
-    def _calculate_complexity(self, framework: Dict, responses: Dict) -> float:
-        """Calculate decision complexity for model routing"""
-        factors = {
-            "num_options": len(framework.get("options", [])),
-            "num_criteria": len(framework.get("criteria", [])),
-            "has_conflicts": self._check_for_conflicts(responses),
-            "uncertainty_level": self._assess_uncertainty(responses),
-            "decision_type_complexity": {
-                "yes_no": 0.2,
-                "comparison": 0.5,
-                "open_ended": 0.8,
-                "career": 0.9,
-                "life_choice": 0.9,
-            }.get(framework.get("decision_type", "comparison"), 0.5),
-        }
-
-        # Weighted complexity calculation
-        complexity = (
-            (min(factors["num_options"] / 5, 1.0) * 0.2)
-            + (min(factors["num_criteria"] / 10, 1.0) * 0.2)
-            + (factors["has_conflicts"] * 0.2)
-            + (factors["uncertainty_level"] * 0.2)
-            + (factors["decision_type_complexity"] * 0.2)
-        )
-
-        return complexity
-
-    def _generate_fallback_framework(self, scenario: str, depth: str) -> Dict:
-        """Simple fallback framework if AI fails"""
-        return {
-            "decision_type": "comparison",
-            "title": "Decision Analysis",
-            "options": [
-                {"name": "Option A", "description": "First option", "inferred": True},
-                {"name": "Option B", "description": "Second option", "inferred": True},
-            ],
-            "criteria": [
-                {"name": "Cost", "weight": 0.3, "category": "financial"},
-                {"name": "Benefits", "weight": 0.4, "category": "practical"},
-                {"name": "Risks", "weight": 0.3, "category": "strategic"},
-            ],
-            "questions": [
-                {"text": "What is your budget constraint?", "type": "text"},
-                {"text": "What is your primary goal?", "type": "text"},
-            ],
-            "context_factors": ["General decision"],
-        }

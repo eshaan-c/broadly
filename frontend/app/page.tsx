@@ -12,164 +12,172 @@ import QuestionsPage from "@/components/questions-page"
 import ResultsPage from "@/components/results-page"
 import DepthOptionCard from "@/components/depth-option-card"
 
+import { decisionAPI, type AnalyzeResponse, type EvaluateResponse } from "@/lib/api"
+
+
 export default function Home() {
   const [scenario, setScenario] = useState("")
-  const [depth, setDepth] = useState("balanced")
+  const [depth, setDepth] = useState<"quick" | "balanced" | "thorough">("balanced")
   const [loading, setLoading] = useState(false)
   const [currentStep, setCurrentStep] = useState("input") // "input", "questions", "results"
+  const [framework, setFramework] = useState<AnalyzeResponse | null>(null)
   const [questions, setQuestions] = useState<any[]>([])
   const [result, setResult] = useState<any>(null)
 
   const depthOptions = [
     {
       title: "Quick",
-      value: "quick",
+      value: "quick" as const,
       tagline: "Fast, essential insights",
       examples: [
         "For everyday choices or tight schedules",
-        "When you need a quick gut check",
-        "For simple yes/no decisions",
-        "When exploring initial options",
+        "Should I cook or order takeout tonight?",
+        "Do I go to the gym now or later?",
+        "Should I text them back or leave it?",
       ],
     },
     {
       title: "Balanced",
-      value: "balanced",
+      value: "balanced" as const,
       tagline: "Comprehensive yet efficient",
       examples: [
         "For decisions with moderate complexity",
-        "When weighing multiple important factors",
-        "For choices with medium-term impact",
-        "When you need structured thinking",
+        "Should I live alone, with roommates, or stay home next semester?",
+        "Intern at a startup, big tech firm, or do research this summer?",
+        "Spend more time on school, social life, or side projects this fall?",
       ],
     },
     {
       title: "Thorough",
-      value: "thorough",
+      value: "thorough" as const,
       tagline: "Deep, nuanced analysis",
       examples: [
         "For life-changing decisions",
-        "When many variables are at play",
-        "For complex professional choices",
-        "When long-term consequences matter most",
+        "I got offers from Goldman (IB), McKinsey (consulting), and a Wharton research role — how do I decide?",
+        "Should I take time off school, power through, or try to reduce my load?",
+        "I feel lost — do I focus on career, reconnect with family, or travel for perspective?",
       ],
     },
   ]
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      // Simulate API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // First API call
+      const response = await decisionAPI.analyze({ scenario, depth });
 
-      // Mock questions data that would come from the API
-      const mockQuestions = [
-        {
-          id: "importance",
-          type: "scale",
-          question: "How important is this decision to you?",
-          min: 1,
-          max: 10,
-          minLabel: "Not very important",
-          maxLabel: "Extremely important",
-        },
-        {
-          id: "timeline",
-          type: "scale",
-          question: "How soon do you need to make this decision?",
-          min: 1,
-          max: 5,
-          minLabel: "No rush",
-          maxLabel: "Immediately",
-        },
-        {
-          id: "factors",
-          type: "rank",
-          question: "Rank these factors in order of importance to you",
-          options: ["Salary", "Work-life balance", "Career growth", "Location", "Company culture"],
-        },
-        {
-          id: "relocation",
-          type: "boolean",
-          question: "Are you willing to relocate for this opportunity?",
+      // Initialize the options array from the first API response
+      const initialOptions = response.options.map((option: any) => ({
+        name: option.name,
+        description: option.description,
+        inferred: option.inferred,
+      }));
+
+      const transformedQuestions = response.questions.map((q, index) => ({
+        id: `q_${index}`,
+        type: q.type,
+        question: q.text,
+        ...(q.type === "scale" && {
+          min: q.min,
+          max: q.max,
+          minLabel: q.minLabel,
+          maxLabel: q.maxLabel,
+        }),
+        ...(q.type === "rank" && {
+          options: q.options || [],
+        }),
+        ...(q.type === "boolean" && {
           labels: ["No", "Yes"],
-        },
-        {
-          id: "dealbreakers",
-          type: "text",
-          question: "What are your absolute dealbreakers for this decision?",
-          placeholder: "E.g., minimum salary, location constraints, etc.",
-        },
-      ]
+        }),
+        ...(q.type === "text" && {
+          placeholder: "Enter your response...",
+        }),
+        criteria_link: q.criteria_link,
+      }));
 
-      setQuestions(mockQuestions)
-      setCurrentStep("questions")
+      setFramework({ ...response, initialOptions }); // Save initial options in the framework
+      setQuestions(transformedQuestions);
+      setCurrentStep("questions");
     } catch (error) {
-      console.error("Error fetching questions:", error)
+      console.error("Error analyzing scenario:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleQuestionsSubmit = async (answers: Record<string, any>) => {
-    setLoading(true)
+    setLoading(true);
 
     try {
-      // Simulate API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Mock response data
-      const mockResponse = {
-        options: [
-          {
-            name: "Job Offer A - New York",
-            pros: ["Higher salary ($120k)", "Prestigious company", "Career advancement opportunities"],
-            cons: ["Higher cost of living", "Longer commute", "More stressful work environment"],
-          },
-          {
-            name: "Job Offer B - Austin",
-            pros: ["Good salary ($105k)", "Better work-life balance", "Lower cost of living", "Emerging tech hub"],
-            cons: ["Less prestigious company", "Potentially slower career growth", "Relocation required"],
-          },
-        ],
-        criteria: [
-          {
-            name: "Financial Impact",
-            analysis:
-              "While Job A offers a higher nominal salary, Job B may provide better financial outcomes when adjusted for cost of living differences.",
-          },
-          {
-            name: "Career Growth",
-            analysis:
-              "Job A offers more immediate prestige and potential for advancement, while Job B may provide more balanced growth over time.",
-          },
-          {
-            name: "Quality of Life",
-            analysis: "Job B appears to offer better work-life balance and potentially less stressful environment.",
-          },
-        ],
-        recommendation:
-          "Based on your scenario and your high ranking of work-life balance, Job B in Austin appears to align better with your priorities, though Job A offers stronger immediate career benefits. Since you indicated willingness to relocate and rated this decision as highly important (8/10), we recommend carefully considering the long-term lifestyle implications of each choice.",
+      if (!framework) {
+        throw new Error("No framework available");
       }
 
-      setResult(mockResponse)
-      setCurrentStep("results")
+      const transformedResponses: Record<string, any> = {};
+      Object.entries(answers).forEach(([key, value]) => {
+        const index = key.replace("q_", "");
+        transformedResponses[index] = value;
+      });
+
+      // Second API call
+      const evaluation = await decisionAPI.evaluate({
+        framework,
+        responses: transformedResponses,
+      });
+
+      // Merge the initial options with the evaluation results
+      const mergedOptions = framework.initialOptions.map((option: any) => ({
+        ...option,
+        ...evaluation.option_scores[option.name], // Merge scores and other data
+      }));
+
+      const transformedResult = {
+        options: mergedOptions.map((option: any) => ({
+          name: option.name,
+          description: option.description,
+          inferred: option.inferred,
+          pros: option.strengths,
+          cons: option.weaknesses,
+          score: option.total_score,
+          confidence: option.confidence,
+        })),
+        criteria: framework.criteria.map((criterion) => ({
+          name: criterion.name,
+          analysis: `Weight: ${(criterion.weight * 100).toFixed(0)}% - ${criterion.description}`,
+          scores: Object.entries(evaluation.option_scores).reduce(
+            (acc, [optionName, scores]) => {
+              acc[optionName] = scores.criteria_scores[criterion.name] || 0;
+              return acc;
+            },
+            {} as Record<string, number>
+          ),
+        })),
+        recommendation: evaluation.recommendation.reasoning,
+        primaryChoice: evaluation.recommendation.primary_choice,
+        alternatives: evaluation.recommendation.alternatives,
+        redFlags: evaluation.recommendation.red_flags,
+      };
+
+      setResult(transformedResult);
+      setCurrentStep("results");
     } catch (error) {
-      console.error("Error analyzing decision:", error)
+      console.error("Error analyzing decision:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const resetToStart = () => {
     setCurrentStep("input")
     setScenario("")
     setDepth("balanced")
-    setQuestions([])
+    setFramework(null)
     setResult(null)
+    setQuestions([])
   }
+
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-white">
@@ -186,7 +194,7 @@ export default function Home() {
                   </Label>
                   <Textarea
                     id="scenario"
-                    placeholder="I'm trying to choose between two job offers in different cities..."
+                    placeholder="My friends and I are trying to decide a place to go for a tropical fall break trip."
                     className="min-h-[120px] resize-none"
                     value={scenario}
                     onChange={(e) => setScenario(e.target.value)}
