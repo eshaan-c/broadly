@@ -33,6 +33,12 @@ interface AnalyzeResponse {
     context_factors: string[];
     depth: string;
     scenario_text: string;
+
+    initialOptions: Array<{
+        name: string;
+        description: string;
+        inferred: boolean;
+    }>;
 }
 
 interface EvaluateRequest {

@@ -22,7 +22,7 @@ export default function AnimatedTextCycler({ texts, interval = 4000 }: AnimatedT
   }, [texts, interval])
 
   return (
-    <div className="h-12 relative overflow-hidden">
+    <div className="h-12 relative overflow-hidden flex items-center justify-center">
       <AnimatePresence mode="wait">
         <motion.p
           key={currentIndex}
@@ -30,7 +30,7 @@ export default function AnimatedTextCycler({ texts, interval = 4000 }: AnimatedT
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.5 }}
-          className="text-sm text-gray-500 absolute"
+          className="text-xs text-gray-500 absolute text-center"
         >
           {texts[currentIndex]}
         </motion.p>

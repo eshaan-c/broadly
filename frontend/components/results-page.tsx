@@ -44,9 +44,10 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.options.map((option: any, index: number) => (
                   <Card key={index} className="bg-slate-50">
-                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                    <CardHeader className="pb-2 flex flex-col items-start">
                       <CardTitle className="text-base">{option.name}</CardTitle>
-                      <span className="text-sm font-semibold text-gray-700">
+                      <p className="text-sm text-gray-500">{option.description}</p> {/* Added subtitle */}
+                      <span className="text-sm font-semibold text-gray-700 mt-1">
                         Score: {option.score}
                       </span>
                     </CardHeader>

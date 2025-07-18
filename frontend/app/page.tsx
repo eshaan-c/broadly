@@ -31,9 +31,9 @@ export default function Home() {
       tagline: "Fast, essential insights",
       examples: [
         "For everyday choices or tight schedules",
-        "When you need a quick gut check",
-        "For simple yes/no decisions",
-        "When exploring initial options",
+        "Should I cook or order takeout tonight?",
+        "Do I go to the gym now or later?",
+        "Should I text them back or leave it?",
       ],
     },
     {
@@ -42,9 +42,9 @@ export default function Home() {
       tagline: "Comprehensive yet efficient",
       examples: [
         "For decisions with moderate complexity",
-        "When weighing multiple important factors",
-        "For choices with medium-term impact",
-        "When you need structured thinking",
+        "Should I live alone, with roommates, or stay home next semester?",
+        "Intern at a startup, big tech firm, or do research this summer?",
+        "Spend more time on school, social life, or side projects this fall?",
       ],
     },
     {
@@ -53,109 +53,121 @@ export default function Home() {
       tagline: "Deep, nuanced analysis",
       examples: [
         "For life-changing decisions",
-        "When many variables are at play",
-        "For complex professional choices",
-        "When long-term consequences matter most",
+        "I got offers from Goldman (IB), McKinsey (consulting), and a Wharton research role — how do I decide?",
+        "Should I take time off school, power through, or try to reduce my load?",
+        "I feel lost — do I focus on career, reconnect with family, or travel for perspective?",
       ],
     },
   ]
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      //  API call with a timeout
-      const response = await decisionAPI.analyze({ scenario, depth })
+      // First API call
+      const response = await decisionAPI.analyze({ scenario, depth });
 
+      // Initialize the options array from the first API response
+      const initialOptions = response.options.map((option: any) => ({
+        name: option.name,
+        description: option.description,
+        inferred: option.inferred,
+      }));
 
-      // Mock questions data that would come from the API
       const transformedQuestions = response.questions.map((q, index) => ({
         id: `q_${index}`,
         type: q.type,
         question: q.text,
-        ...(q.type === 'scale' && {
+        ...(q.type === "scale" && {
           min: q.min,
           max: q.max,
           minLabel: q.minLabel,
-          maxLabel: q.maxLabel
+          maxLabel: q.maxLabel,
         }),
-        ...(q.type === 'rank' && {
-          options: q.options || []
+        ...(q.type === "rank" && {
+          options: q.options || [],
         }),
-        ...(q.type === 'boolean' && {
-          labels: ["No", "Yes"]
+        ...(q.type === "boolean" && {
+          labels: ["No", "Yes"],
         }),
-        ...(q.type === 'text' && {
-          placeholder: "Enter your response..."
+        ...(q.type === "text" && {
+          placeholder: "Enter your response...",
         }),
-        criteria_link: q.criteria_link
-      }))
+        criteria_link: q.criteria_link,
+      }));
 
-      setFramework(response)
-      setQuestions(transformedQuestions)
-      setCurrentStep("questions")
-
+      setFramework({ ...response, initialOptions }); // Save initial options in the framework
+      setQuestions(transformedQuestions);
+      setCurrentStep("questions");
     } catch (error) {
-      console.error("Error analyzing scenario:", error)
+      console.error("Error analyzing scenario:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleQuestionsSubmit = async (answers: Record<string, any>) => {
-    setLoading(true)
+    setLoading(true);
 
     try {
       if (!framework) {
-        throw new Error("No framework available")
+        throw new Error("No framework available");
       }
 
-      const transformedResponses: Record<string, any> = {}
+      const transformedResponses: Record<string, any> = {};
       Object.entries(answers).forEach(([key, value]) => {
-        // Extract the index from the question ID (e.g., "q_0" -> "0")
-        const index = key.replace('q_', '')
-        transformedResponses[index] = value
-      })
+        const index = key.replace("q_", "");
+        transformedResponses[index] = value;
+      });
 
-      // Call the evaluation endpoint
+      // Second API call
       const evaluation = await decisionAPI.evaluate({
         framework,
-        responses: transformedResponses
-      })
+        responses: transformedResponses,
+      });
 
+      // Merge the initial options with the evaluation results
+      const mergedOptions = framework.initialOptions.map((option: any) => ({
+        ...option,
+        ...evaluation.option_scores[option.name], // Merge scores and other data
+      }));
 
-      // Transform the evaluation response to match the expected result format
       const transformedResult = {
-        options: Object.entries(evaluation.option_scores).map(([name, scores]) => ({
-          name,
-          pros: scores.strengths,
-          cons: scores.weaknesses,
-          score: scores.total_score,
-          confidence: scores.confidence
+        options: mergedOptions.map((option: any) => ({
+          name: option.name,
+          description: option.description,
+          inferred: option.inferred,
+          pros: option.strengths,
+          cons: option.weaknesses,
+          score: option.total_score,
+          confidence: option.confidence,
         })),
-        criteria: framework.criteria.map(criterion => ({
+        criteria: framework.criteria.map((criterion) => ({
           name: criterion.name,
           analysis: `Weight: ${(criterion.weight * 100).toFixed(0)}% - ${criterion.description}`,
-          scores: Object.entries(evaluation.option_scores).reduce((acc, [optionName, scores]) => {
-            acc[optionName] = scores.criteria_scores[criterion.name] || 0
-            return acc
-          }, {} as Record<string, number>)
+          scores: Object.entries(evaluation.option_scores).reduce(
+            (acc, [optionName, scores]) => {
+              acc[optionName] = scores.criteria_scores[criterion.name] || 0;
+              return acc;
+            },
+            {} as Record<string, number>
+          ),
         })),
         recommendation: evaluation.recommendation.reasoning,
         primaryChoice: evaluation.recommendation.primary_choice,
         alternatives: evaluation.recommendation.alternatives,
-        redFlags: evaluation.recommendation.red_flags
-      }
+        redFlags: evaluation.recommendation.red_flags,
+      };
 
-      setResult(transformedResult)
-      setCurrentStep("results")
+      setResult(transformedResult);
+      setCurrentStep("results");
     } catch (error) {
-      console.error("Error analyzing decision:", error)
+      console.error("Error analyzing decision:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const resetToStart = () => {
     setCurrentStep("input")
