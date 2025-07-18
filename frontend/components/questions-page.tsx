@@ -10,8 +10,9 @@ import { cn } from "@/lib/utils"
 
 type Question = {
   id: string
-  type: "scale" | "rank" | "boolean" | "text"
+  type: "scale" | "rank" | "boolean" | "text" | "mcq"
   question: string
+  options?: string[]
   [key: string]: any
 }
 
@@ -34,12 +35,14 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading }: 
     questions.forEach((question) => {
       if (question.type === "scale") {
         initialAnswers[question.id] = Math.floor((question.max - question.min) / 2) + question.min
-      } else if (question.type === "rank") {
+      } else if (question.type === "rank" && question.options) {
         initialAnswers[question.id] = [...question.options]
       } else if (question.type === "boolean") {
         initialAnswers[question.id] = null
       } else if (question.type === "text") {
         initialAnswers[question.id] = ""
+      } else if (question.type === "mcq") {
+        initialAnswers[question.id] = null
       }
     })
 
@@ -49,7 +52,7 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading }: 
   useEffect(() => {
     // Check if all questions are answered
     const isAllAnswered = questions.every((question) => {
-      if (question.type === "boolean" && answers[question.id] === null) return false
+      if ((question.type === "mcq") && answers[question.id] === null) return false
       if (question.type === "text" && !answers[question.id]?.trim()) return false
       return answers[question.id] !== undefined
     })
@@ -66,6 +69,10 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading }: 
   }
 
   const handleBooleanChange = (id: string, value: boolean) => {
+    setAnswers((prev) => ({ ...prev, [id]: value }))
+  }
+
+  const handleMcqChange = (id: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [id]: value }))
   }
 
@@ -201,6 +208,30 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading }: 
                   >
                     {question.labels?.[1] || "Yes"}
                   </Button>
+                </div>
+              )}
+
+              {question.type === "mcq" && (
+                <div className={cn(
+                  "grid gap-3",
+                  question.options && question.options.length > 3 ? "grid-cols-2" : "flex"
+                )}>
+                  {question.options?.map((option, index) => (
+                    <Button
+                      key={`${question.id}-${index}`}
+                      variant={answers[question.id] === option ? "default" : "outline"}
+                      onClick={() => handleMcqChange(question.id, option)}
+                      className={cn(
+                        "py-3",
+                        question.options && question.options.length > 3 ? "w-full" : "flex-1",
+                        answers[question.id] === option
+                          ? "bg-gradient-to-r from-slate-600 to-slate-500 text-white shadow-lg"
+                          : "bg-slate-700/50 border-slate-600 text-slate-200 hover:bg-slate-600/50",
+                      )}
+                    >
+                      {option}
+                    </Button>
+                  ))}
                 </div>
               )}
 

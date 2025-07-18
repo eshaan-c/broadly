@@ -22,7 +22,7 @@ interface AnalyzeResponse {
     }>;
     questions: Array<{
         text: string;
-        type: 'scale' | 'rank' | 'boolean' | 'text' | 'multiple_choice';
+        type: 'scale' | 'rank' | 'mcq' | 'text';
         options?: string[];
         criteria_link: string;
         min?: number; // For scale type questions

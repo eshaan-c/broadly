@@ -83,9 +83,11 @@ class DecisionEngine:
 
         QUESTION TYPES:
         - scale: Use for measuring importance/comfort levels (always include min, max, minLabel, maxLabel)
-        - boolean: Use for yes/no preferences or constraints
+        - mcq: Multiple choice. Use for yes/no preferences or more nuanced options
         - rank: Use ONLY for ranking abstract priorities (never the actual options)
         - text: Use for context the AI cannot infer
+
+        You may use mcq for yes/no questions, but avoid binary questions that don't reveal user context.
 
         Respond with valid JSON only:
         {{
@@ -105,13 +107,13 @@ class DecisionEngine:
             "questions": [
             {{
                 "text": "",
-                "type": "scale|rank|boolean|text",
+                "type": "scale|rank|mcq|text",
                 "criteria_link": "",
-                "options": [], // For rank type only: abstract priorities, not the decision options
-                "min": 1, // For scale only
-                "max": 5, // For scale only  
+                "options": [], // For rank type and mcq: abstract priorities, not the decision options
+                "min": , // For scale only
+                "max": , // For scale only  
                 "minLabel": "", // For scale only
-                "maxLabel": "" // For scale only
+                "maxLabel": "", // For scale only
             }}
             ],
             "context_factors": []
@@ -130,7 +132,7 @@ class DecisionEngine:
                 # gpt 4.1 test
                 chosen_model = "gpt-4.1-2025-04-14"
 
-            chosen_model = "gpt-4.1-mini-2025-04-14"
+            # chosen_model = "gpt-4.1-mini-2025-04-14"
 
             print(f"Calling model: {chosen_model} for depth: {depth}")
             response = self.client.responses.create(
@@ -167,7 +169,7 @@ class DecisionEngine:
             # gpt 4.1 test
             chosen_model = "gpt-4.1-2025-04-14"
 
-        chosen_model = "gpt-4.1-mini-2025-04-14"
+        # chosen_model = "gpt-4.1-mini-2025-04-14"
 
         prompt = f"""
         DECISION FRAMEWORK:
