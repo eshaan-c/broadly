@@ -16,7 +16,7 @@ def analyze_decision():
     depth = data.get("depth", "balanced")
 
     result = decision_engine.analyze_scenario(scenario=scenario, depth=depth)
-    # print(f"Analysis result: {result}")
+    print(f"Analysis result: {result}")
     return jsonify(result), 200
 
 
@@ -28,7 +28,7 @@ def evaluate_decision():
 
     # Call the DecisionEngine evaluation
     result = decision_engine.evaluate_options(framework=framework, responses=responses)
-    # print(f"Evaluation result: {result}")
+    print(f"Evaluation result: {result}")
     return jsonify(result), 200
 
 

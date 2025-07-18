@@ -75,10 +75,10 @@ export default function Home() {
         type: q.type,
         question: q.text,
         ...(q.type === 'scale' && {
-          min: 1,
-          max: 10,
-          minLabel: "Low",
-          maxLabel: "High"
+          min: q.min,
+          max: q.max,
+          minLabel: q.minLabel,
+          maxLabel: q.maxLabel
         }),
         ...(q.type === 'rank' && {
           options: q.options || []
@@ -124,39 +124,6 @@ export default function Home() {
         responses: transformedResponses
       })
 
-      // Mock response data
-      // const mockResponse = {
-      //   options: [
-      //     {
-      //       name: "Job Offer A - New York",
-      //       pros: ["Higher salary ($120k)", "Prestigious company", "Career advancement opportunities"],
-      //       cons: ["Higher cost of living", "Longer commute", "More stressful work environment"],
-      //     },
-      //     {
-      //       name: "Job Offer B - Austin",
-      //       pros: ["Good salary ($105k)", "Better work-life balance", "Lower cost of living", "Emerging tech hub"],
-      //       cons: ["Less prestigious company", "Potentially slower career growth", "Relocation required"],
-      //     },
-      //   ],
-      //   criteria: [
-      //     {
-      //       name: "Financial Impact",
-      //       analysis:
-      //         "While Job A offers a higher nominal salary, Job B may provide better financial outcomes when adjusted for cost of living differences.",
-      //     },
-      //     {
-      //       name: "Career Growth",
-      //       analysis:
-      //         "Job A offers more immediate prestige and potential for advancement, while Job B may provide more balanced growth over time.",
-      //     },
-      //     {
-      //       name: "Quality of Life",
-      //       analysis: "Job B appears to offer better work-life balance and potentially less stressful environment.",
-      //     },
-      //   ],
-      //   recommendation:
-      //     "Based on your scenario and your high ranking of work-life balance, Job B in Austin appears to align better with your priorities, though Job A offers stronger immediate career benefits. Since you indicated willingness to relocate and rated this decision as highly important (8/10), we recommend carefully considering the long-term lifestyle implications of each choice.",
-      // }
 
       // Transform the evaluation response to match the expected result format
       const transformedResult = {

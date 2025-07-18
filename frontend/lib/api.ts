@@ -25,6 +25,10 @@ interface AnalyzeResponse {
         type: 'scale' | 'rank' | 'boolean' | 'text' | 'multiple_choice';
         options?: string[];
         criteria_link: string;
+        min?: number; // For scale type questions
+        max?: number; // For scale type questions
+        minLabel?: string; // For scale type questions
+        maxLabel?: string; // For scale type questions
     }>;
     context_factors: string[];
     depth: string;

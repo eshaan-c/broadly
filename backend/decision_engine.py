@@ -80,7 +80,11 @@ class DecisionEngine:
                     "text": "Question text",
                     "type": "scale/rank/boolean/text",
                     "options": [], // For multiple choice
-                    "criteria_link": "Which criterion this helps evaluate"
+                    "criteria_link": "Which criterion this helps evaluate",
+                    "min": 1, // For scale type questions, specify minimum value
+                    "max": 5, // For scale type questions, specify maximum value
+                    "minLabel": "Lowest value meaning", // For scale type questions, specify label for minimum value
+                    "maxLabel": "Highest value meaning" // For scale type questions, specify label for maximum value
                 }}
                 // Generate {config['questions']} questions
             ],
@@ -107,7 +111,6 @@ class DecisionEngine:
                 instructions="You are an expert decision analyst who creates structured frameworks for complex decisions.",
                 input=prompt,
             )
-            print(f"Response: {response.output_text}")
             framework = json.loads(response.output_text)
 
             # with open("test/framework.json", "r") as f:
