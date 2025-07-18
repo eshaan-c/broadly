@@ -30,7 +30,7 @@ export default function AnimatedTextCycler({ texts, interval = 4000 }: AnimatedT
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.5 }}
-          className="text-xs text-gray-500 absolute text-center"
+          className="text-xs text-slate-400 absolute text-center"
         >
           {texts[currentIndex]}
         </motion.p>
