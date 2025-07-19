@@ -214,7 +214,11 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading }: 
               {question.type === "mcq" && (
                 <div className={cn(
                   "grid gap-3",
-                  question.options && question.options.length > 3 ? "grid-cols-2" : "flex"
+                  question.options && question.options.length > 2
+                    ? question.options.length === 3
+                      ? "grid-cols-3"
+                      : "grid-cols-2"
+                    : "flex"
                 )}>
                   {question.options?.map((option, index) => (
                     <Button
@@ -222,8 +226,8 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading }: 
                       variant={answers[question.id] === option ? "default" : "outline"}
                       onClick={() => handleMcqChange(question.id, option)}
                       className={cn(
-                        "py-3",
-                        question.options && question.options.length > 3 ? "w-full" : "flex-1",
+                        "py-3 px-2 h-auto min-h-10 text-sm sm:text-base sm:py-3",
+                        question.options && question.options.length > 2 ? "w-full" : "flex-1",
                         answers[question.id] === option
                           ? "bg-gradient-to-r from-slate-600 to-slate-500 text-white shadow-lg"
                           : "bg-slate-700/50 border-slate-600 text-slate-200 hover:bg-slate-600/50",
