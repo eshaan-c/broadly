@@ -1,4 +1,4 @@
-# Broadly
+# broadly
 
 LLM-powered tool helping users make better decisions by turning natural language into structured decision frameworks.
 
