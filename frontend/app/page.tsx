@@ -106,7 +106,7 @@ export default function Home() {
             <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-200 via-white to-slate-300 bg-clip-text text-transparent mb-4">
               broadly
             </h1>
-            <p className="text-slate-400 text-lg">AI-Powered Decision Frameworks</p>
+            <p className="text-slate-400 text-lg">Structured decisions, powered by AI</p>
           </div>
 
           {currentStep === "scenario" && (
