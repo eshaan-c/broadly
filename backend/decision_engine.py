@@ -100,7 +100,7 @@ class DecisionEngine:
             {{
                 "name": "",
                 "description": "",
-                "weight": 0.0-1.0,
+                "weight": float,  // Each weight must be between 0 and 1 and all weights must sum to exactly 1.0
                 "category": "financial|practical|emotional|strategic"
             }}
             ],
@@ -179,48 +179,60 @@ class DecisionEngine:
         {json.dumps(responses, indent=2)}
 
         EVALUATION INSTRUCTIONS:
-        Analyze ALL options (both explicit and inferred) based on the user's responses about their values, constraints, and priorities.
+        Evaluate ALL options (both explicit and AI-inferred) using the user's stated values, constraints, and priorities.
 
-        SCORING METHOD:
-        1. For each criterion, score how well each option aligns with the user's stated preferences (0-10)
-        2. Multiply by criterion weight to get weighted score
-        3. Sum weighted scores for total (0-10 scale)
-        4. Base scores on user's unique context, not generic assessments
+        SCORING METHOD (STRICT):
+        1. For each option:
+        a. For each criterion:
+            - Assign a score from 0 to 10 based on how well the option aligns with the user's values
+            - Multiply this score by the criterion's weight to get the weighted score
+        b. Sum all weighted scores to compute a final `total_score` on a 0–10 scale:
+            total_score = sum(weighted_criterion_scores)
+        2. Report both `criteria_scores` (weighted) and `total_score` with **2 decimal places**.
+
+        SCORING GUIDANCE:
+        - Use user's responses to justify each score
+        - Do not use generic assumptions — base everything on user's expressed preferences
+        - All total_scores must be the **exact sum** of weighted criterion scores
 
         ANALYSIS REQUIREMENTS:
-        - Connect scores directly to user responses (e.g., "scores high on flexibility which you rated as very important")
-        - Identify hidden trade-offs between what user values
-        - Surface non-obvious strengths/weaknesses specific to THIS user
-        - Assess confidence based on response clarity and information completeness
-        - For inferred options, note they were AI-suggested
+        - Justify scores with clear links to user input (e.g., “scores high on flexibility, which you rated as very important”)
+        - Highlight tradeoffs and tensions between values
+        - Identify strengths and weaknesses *specific to the user*, not general platitudes
+        - Set confidence level as "high", "medium", or "low" depending on clarity and specificity of user input
+        - Flag any options you inferred that were not user-provided
 
-        OUTPUT: Valid JSON only, no markdown or explanations.
+        OUTPUT: Valid **pure JSON** (no markdown or extra explanations), matching this structure:
 
         {{
-            "option_scores": {{
-                "Option Name": {{
-                    "total_score": 0.0-10.0,
-                    "criteria_scores": {{"criterion_name": weighted_score}},
-                    "strengths": ["Specific advantage given user's stated priority X"],
-                    "weaknesses": ["Specific disadvantage given user's constraint Y"],
-                    "confidence": "high/medium/low"
-                }}
+        "option_scores": {{
+            "Option Name": {{
+            "total_score": float (0.00 to 10.00),
+            "criteria_scores": {{
+                "Criterion Name": float (0.00 to 10.00 * weight)
             }},
-            "recommendation": {{
-                "primary_choice": "Best option name",
-                "reasoning": "2-3 sentences explaining why this best matches user's specific values and constraints from their responses",
-                "alternatives": ["Close second: [Option] if [specific user priority] becomes more important"],
-                "red_flags": ["Risk given user's stated concern about X", "Potential issue with user's constraint Y"]
+            "strengths": ["Specific strength aligned with user's stated values"],
+            "weaknesses": ["Specific weakness based on user's constraints"],
+            "confidence": "high" | "medium" | "low"
             }},
-            "sensitivity_analysis": {{
-                "critical_factors": ["If user's priority X changes, recommendation would shift to Option Y"],
-                "robust_choice": "Option least affected by changing priorities"
-            }},
-            "decision_insights": {{
-                "key_tradeoff": "Primary tension between user's value A and value B",
-                "surprise_finding": "Unexpected insight based on user's responses"
-            }}
-        }}"""
+            ...
+        }},
+        "recommendation": {{
+            "primary_choice": "Option Name",
+            "reasoning": "Why this best fits the user's values and context (2-3 sentences)",
+            "alternatives": ["Option B if user's priority X increases", "Option C if concern Y becomes more relevant"],
+            "red_flags": ["Risk due to concern about X", "Potential mismatch with user's constraint Y"]
+        }},
+        "sensitivity_analysis": {{
+            "critical_factors": ["If priority X changes, the top choice may shift to Option Y"],
+            "robust_choice": "Option least sensitive to shifting priorities"
+        }},
+        "decision_insights": {{
+            "key_tradeoff": "Primary tension the user must resolve (e.g., growth vs stability)",
+            "surprise_finding": "Non-obvious insight from user's values"
+        }}
+        }}
+        """
 
         try:
             print(f"Calling model: {chosen_model} for evaluation")
