@@ -31,7 +31,11 @@ def create_app():
         app,
         resources={
             r"/api/*": {
-                "origins": ["http://localhost:3000", "http://127.0.0.1:5000"],
+                "origins": [
+                    "http://localhost:3000",
+                    "http://127.0.0.1:5000",
+                    "http://172.16.111.101:3000",  # Replace with your machine's IP
+                ],
                 "supports_credentials": True,  # Important for sessions
             }
         },
@@ -54,4 +58,4 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=3001, debug=True)

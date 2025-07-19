@@ -6,11 +6,12 @@ from decision_engine import DecisionEngine
 
 
 decisions_bp = Blueprint("decisions", __name__)
-decision_engine = DecisionEngine()
+# decision_engine = DecisionEngine()
 
 
 @decisions_bp.route("/analyze", methods=["POST"])
 def analyze_decision():
+    decision_engine = DecisionEngine()
     data = request.get_json()
     scenario = data.get("scenario", "")
     depth = data.get("depth", "balanced")
@@ -22,6 +23,7 @@ def analyze_decision():
 
 @decisions_bp.route("/evaluate", methods=["POST"])
 def evaluate_decision():
+    decision_engine = DecisionEngine()
     data = request.get_json()
     framework = data.get("framework", {})
     responses = data.get("responses", {})
