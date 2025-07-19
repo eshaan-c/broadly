@@ -35,6 +35,7 @@ def create_app():
                     "http://localhost:3000",
                     "http://127.0.0.1:5000",
                     "http://172.16.111.101:3000",  # Replace with your machine's IP
+                    "https://broadly.vercel.app/",
                 ],
                 "supports_credentials": True,  # Important for sessions
             }
