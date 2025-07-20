@@ -69,7 +69,7 @@ export default function LoadingScreen({ message }: LoadingScreenProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-lg"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-lg"
     >
       <div className="flex flex-col items-center space-y-10 p-8">
         {/* Enhanced Animated logo/icon */}
@@ -99,7 +99,7 @@ export default function LoadingScreen({ message }: LoadingScreenProps) {
             />
 
             {/* Enhanced glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-400/20 to-slate-300/20 rounded-full blur-xl animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-400/20 to-slate-300/20 rounded-full blur-xl animate-pulse-glow"></div>
           </motion.div>
 
           {/* Enhanced Orbiting dots */}
@@ -188,7 +188,7 @@ export default function LoadingScreen({ message }: LoadingScreenProps) {
           {loadingMessages.map((_, index) => (
             <div key={index} className="flex flex-col items-center space-y-2">
               <motion.div
-                className={`w-4 h-4 rounded-full transition-all duration-500 border-2 ${
+                className={`w-4 h-4 rounded-full transition-smooth border-2 ${
                   index < currentMessageIndex
                     ? "bg-slate-300 border-slate-300 shadow-lg"
                     : index === currentMessageIndex
