@@ -8,6 +8,7 @@ import QuestionForm from "@/components/question-form"
 import Results from "@/components/results"
 import LoadingScreen from "@/components/loading-screen"
 import { decisionAPI, type AnalyzeResponse } from "@/lib/api"
+import { calculateWeightedScores, findBestOption, generateCriteriaComparisons } from "@/lib/score_calculations"
 
 type Step = "scenario" | "questions" | "results"
 
@@ -73,6 +74,8 @@ export default function Home() {
     }
   }
 
+  // In your handleEvaluate function - add check for primary choice alignment
+
   const handleEvaluate = async (answers: Record<string, any>) => {
     if (!framework) return
     setLoading(true)
@@ -84,28 +87,99 @@ export default function Home() {
         responses: answers,
       })
 
+      // Calculate weighted scores on the frontend
+      const calculatedScores = calculateWeightedScores(
+        res.option_scores,
+        framework.criteria
+      )
+
+      // Find the best option based on calculated scores
+      const bestOption = findBestOption(calculatedScores)
+
+      // Generate criteria comparisons for visualization
+      const { criteriaComparisons, mostDecisiveCriteria, leastDecisiveCriteria } =
+        generateCriteriaComparisons(calculatedScores, framework.criteria)
+
+      // Check if AI's reasoning aligns with calculated best option
+      let finalRecommendation = res.recommendation.reasoning;
+
+      // If the reasoning mentions a different option as primary, update it
+      if (res.recommendation.primary_choice && res.recommendation.primary_choice !== bestOption) {
+        console.log(`AI recommended ${res.recommendation.primary_choice} but calculations show ${bestOption}`);
+        // You could either:
+        // 1. Keep the AI's reasoning but note the discrepancy
+        // 2. Prepend a note about the calculated result
+        finalRecommendation = `Based on the weighted scores, ${bestOption} emerges as the top choice. ${res.recommendation.reasoning}`;
+      }
+
+      // Update the recommendation with our calculated best option
+      const updatedRecommendation = {
+        ...res.recommendation,
+        primary_choice: bestOption,
+        reasoning: finalRecommendation
+      }
+
+      // Merge everything together for the results page
       const merged = {
+        // Original evaluation data
         ...res,
-        options: framework.options.map((opt: any) => ({
-          name: opt.name,
-          description: opt.description,
-          inferred: opt.inferred,
-          pros: res.option_scores[opt.name]?.strengths || [],
-          cons: res.option_scores[opt.name]?.weaknesses || [],
-          score: res.option_scores[opt.name]?.total_score || 0,
-          confidence: res.option_scores[opt.name]?.confidence || "medium",
-        })),
+
+        // Updated recommendation
+        recommendation: updatedRecommendation,
+        primaryChoice: bestOption,
+
+        // Framework data
+        scenario: framework.scenario_text,
+
+        // Check if questions were skipped
+        skippedQuestions: res.skip_questions || false,
+
+        // Merge options with scores and evaluation data
+        options: framework.options.map((opt: any) => {
+          const optionEval = res.option_scores[opt.name]
+          const scores = calculatedScores[opt.name]
+
+          return {
+            // Original option data
+            name: opt.name,
+            description: opt.description,
+            inferred: opt.inferred,
+
+            // Evaluation results
+            pros: optionEval?.strengths || [],
+            cons: optionEval?.weaknesses || [],
+            confidence: optionEval?.confidence || "medium",
+
+            // Calculated scores
+            score: scores?.totalScore || 0,
+            rawCriteriaScores: scores?.rawCriteriaScores || {},
+            weightedCriteriaScores: scores?.weightedCriteriaScores || {},
+          }
+        }),
+
+        // Rest of your existing merge logic...
         criteria: framework.criteria.map((c: any) => ({
           name: c.name,
+          description: c.description,
+          weight: c.weight,
+          category: c.category,
           analysis: `${c.description} (weight ${(c.weight * 100).toFixed(0)}%)`,
         })),
-        primaryChoice: res.recommendation.primary_choice,
-        recommendation: res.recommendation.reasoning,
+
+        criteriaComparisons,
+        mostDecisiveCriteria,
+        leastDecisiveCriteria,
+        insights: res.insights,
         redFlags: res.recommendation.red_flags,
+        alternatives: res.recommendation.alternatives,
       }
+
+      // Sort options by score for display
+      merged.options.sort((a: any, b: any) => b.score - a.score)
 
       setResult(merged)
       setCurrentStep("results")
+
     } catch (err) {
       console.error("Evaluate failed:", err)
       const errorMessage = err instanceof Error ? err.message : "Evaluation failed. Please try again."
@@ -114,6 +188,7 @@ export default function Home() {
       setLoading(false)
     }
   }
+
 
   const handleRestart = () => {
     setScenario("")
@@ -143,19 +218,16 @@ export default function Home() {
         <div className="bg-slate-900/90 backdrop-blur-md rounded-full px-4 py-2 border border-slate-800/50">
           <div className="flex items-center space-x-2 text-xs text-slate-400">
             <div
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentStep === "scenario" ? "bg-slate-300" : "bg-slate-600"
-              }`}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep === "scenario" ? "bg-slate-300" : "bg-slate-600"
+                }`}
             />
             <div
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentStep === "questions" ? "bg-slate-300" : "bg-slate-600"
-              }`}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep === "questions" ? "bg-slate-300" : "bg-slate-600"
+                }`}
             />
             <div
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentStep === "results" ? "bg-slate-300" : "bg-slate-600"
-              }`}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep === "results" ? "bg-slate-300" : "bg-slate-600"
+                }`}
             />
           </div>
         </div>
@@ -203,14 +275,13 @@ export default function Home() {
                 <QuestionForm
                   questions={questions}
                   onSubmit={handleEvaluate}
-                  onBack={() => setCurrentStep("scenario")}
                 />
               </div>
             )}
 
             {currentStep === "results" && result && (
               <div className="animate-fade-in-up">
-                <Results result={result} onBack={handleRestart} />
+                <Results result={result} />
               </div>
             )}
           </div>

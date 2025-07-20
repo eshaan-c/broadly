@@ -156,21 +156,51 @@ class DecisionEngine:
             # return dummy data for fallback
             return {}
 
+    # In your decision_engine.py - update the evaluate_options method
+
     def evaluate_options(self, framework: Dict, responses: Dict) -> Dict:
         """
         Stage 2: Evaluate options based on responses using intelligent model routing
         """
 
+        # Check if user skipped questions
+        skip_questions = responses.get("_skipQuestions", False)
+
         depth = framework.get("depth", "balanced")
         if depth == "quick":
             chosen_model = "gpt-4o-mini-2024-07-18"
         else:
-            # chosen_model = "o4-mini-2025-04-16"
-            # gpt 4.1 test
             chosen_model = "gpt-4.1-2025-04-14"
 
-        # chosen_model = "gpt-4.1-mini-2025-04-14"
+        example_rationale = (
+            "General assessment based on typical preferences"
+            if skip_questions
+            else "Explanation based on user's stated preferences"
+        )
 
+        example_strengths = (
+            "Key advantages for typical users"
+            if skip_questions
+            else "Key advantages based on your priorities"
+        )
+        example_weaknesses = (
+            "Key disadvantages for typical users"
+            if skip_questions
+            else "Key disadvantages based on your needs"
+        )
+        example_confidence = "low" if skip_questions else "high|medium|low"
+        example_reasoning = (
+            "General analysis: [2-3 sentences about how options compare]"
+            if skip_questions
+            else "Based on your responses: [2-3 sentences about how options compare]"
+        )
+        example_redflag = (
+            "General concerns to consider"
+            if skip_questions
+            else "Specific concerns based on your input"
+        )
+
+        # Build prompt that always returns raw scores
         prompt = f"""
         DECISION FRAMEWORK:
         {json.dumps(framework, indent=2)}
@@ -179,82 +209,86 @@ class DecisionEngine:
         {json.dumps(responses, indent=2)}
 
         EVALUATION INSTRUCTIONS:
-        Evaluate ALL options (both explicit and AI-inferred) using the user's stated values, constraints, and priorities.
+        {"NOTE: The user skipped clarifying questions. Base your evaluation on the scenario context and reasonable assumptions for this type of decision." if skip_questions else "Evaluate based on the user's specific responses and preferences."}
 
-        SCORING METHOD (STRICT):
-        1. For each option:
-        a. For each criterion:
-            - Assign a score from 0 to 10 based on how well the option aligns with the user's values
-            - Multiply this score by the criterion's weight to get the weighted score
-        b. Sum all weighted scores to compute a final `total_score` on a 0–10 scale:
-            total_score = sum(weighted_criterion_scores)
-        2. Report both `criteria_scores` (weighted) and `total_score` with **2 decimal places**.
+        SCORING METHOD:
+        1. For each option and each criterion combination:
+        - Assign a raw score from 0.0 to 10.0 based on how well that option satisfies that criterion
+        - {"Use general/typical preferences since user didn't provide specific input" if skip_questions else "Base scores on user's expressed preferences"}
+        - Return raw 0-10 scores only (DO NOT pre-weight)
+        
+        2. Score meaning:
+        - 0.0-2.0: Very poor fit
+        - 2.1-4.0: Below average fit  
+        - 4.1-6.0: Average/moderate fit
+        - 6.1-8.0: Good fit
+        - 8.1-10.0: Excellent fit
 
-        SCORING GUIDANCE:
-        - Use user's responses to justify each score
-        - Do not use generic assumptions — base everything on user's expressed preferences
-        - All total_scores must be the **exact sum** of weighted criterion scores
-
-        ANALYSIS REQUIREMENTS:
-        - Justify scores with clear links to user input (e.g., “scores high on flexibility, which you rated as very important”)
-        - Highlight tradeoffs and tensions between values
-        - Identify strengths and weaknesses *specific to the user*, not general platitudes
-        - Set confidence level as "high", "medium", or "low" depending on clarity and specificity of user input
-        - Flag any options you inferred that were not user-provided
-
-        OUTPUT: Valid **pure JSON** (no markdown or extra explanations), matching this structure:
+        OUTPUT: Do not include markdown, explanations, or natural language. Return only the JSON structure shown below:
 
         {{
         "option_scores": {{
             "Option Name": {{
-            "total_score": float (0.00 to 10.00),
             "criteria_scores": {{
-                "Criterion Name": float (0.00 to 10.00 * weight)
+                "Criterion Name": {{
+                "raw_score": 0.0-10.0
+                }}
             }},
-            "strengths": ["Specific strength aligned with user's stated values"],
-            "weaknesses": ["Specific weakness based on user's constraints"],
-            "confidence": "high" | "medium" | "low"
-            }},
-            ...
+            "strengths": ["{example_strengths}"],
+            "weaknesses": ["{example_weaknesses}"],
+            "confidence": "{example_confidence}",
+            "inferred_option": true/false
+            }}
         }},
         "recommendation": {{
-            "primary_choice": "Option Name",
-            "reasoning": "Why this best fits the user's values and context (2-3 sentences)",
-            "alternatives": ["Option B if user's priority X increases", "Option C if concern Y becomes more relevant"],
-            "red_flags": ["Risk due to concern about X", "Potential mismatch with user's constraint Y"]
+            "primary_choice": "Will be calculated by frontend, but try to suggest a primary option",
+            "reasoning": "{example_reasoning}",
+            "alternatives": ["Option B excels if [specific priority]"],
+            "red_flags": ["{example_redflag}"]
         }},
-        "sensitivity_analysis": {{
-            "critical_factors": ["If priority X changes, the top choice may shift to Option Y"],
-            "robust_choice": "Option least sensitive to shifting priorities"
-        }},
-        "decision_insights": {{
-            "key_tradeoff": "Primary tension the user must resolve (e.g., growth vs stability)",
-            "surprise_finding": "Non-obvious insight from user's values"
+        "insights": {{
+            "key_tensions": ["Trade-offs between criteria"],
+            "surprise_findings": ["Notable patterns in the scoring"],
+            "criteria_patterns": {{
+            "highest_variance": "Criterion with biggest score differences",
+            "lowest_variance": "Criterion where options score similarly"
+            }}
         }}
-        }}
-        """
+        }}"""
 
         try:
             print(f"Calling model: {chosen_model} for evaluation")
             response = self.client.responses.create(
                 model=chosen_model,
-                instructions="You are an expert decision analyst tasked with evaluating options using a structured framework. Your analysis should be thorough, nuanced, and actionable.",
+                instructions="You are an expert decision analyst. Always provide raw scores for each option-criterion combination.",
                 input=prompt,
-                # temperature=0.7,
-                # max_tokens=2000,
             )
 
             evaluation = json.loads(response.output_text)
-
-            # with open("test/evaluation.json", "r") as f:
-            #     sample_json = json.load(f)
-
-            # evaluation = sample_json
             evaluation["model_used"] = chosen_model
+            evaluation["skipped_questions"] = skip_questions
 
             return evaluation
 
         except Exception as e:
-            print(f"Error in scenario analysis: {e}")
-            # return dummy data for fallback
-            return {}
+            print(f"Error in evaluation: {e}")
+            # Return empty structure that won't break frontend
+            return {
+                "option_scores": {},
+                "recommendation": {
+                    "primary_choice": "",
+                    "reasoning": "Evaluation failed. Please try again.",
+                    "alternatives": [],
+                    "red_flags": [],
+                },
+                "insights": {
+                    "key_tensions": [],
+                    "surprise_findings": [],
+                    "criteria_patterns": {
+                        "highest_variance": "",
+                        "lowest_variance": "",
+                    },
+                },
+                "model_used": chosen_model,
+                "skipped_questions": skip_questions,
+            }

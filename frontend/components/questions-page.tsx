@@ -181,19 +181,19 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading = f
         </div>
 
         {/* Progress info - shown on both layouts */}
-        <div className="mt-4 text-center">
+        {/* <div className="mt-4 text-center">
           <p className="text-sm text-slate-400">
             {completedQuestions.size} of {questions.length} completed
           </p>
-        </div>
+        </div> */}
 
         {/* Progress bar */}
-        <div className="w-full bg-slate-800/50 rounded-full h-2 overflow-hidden mt-3">
+        {/* <div className="w-full bg-slate-800/50 rounded-full h-2 overflow-hidden mt-3">
           <div
             className="bg-gradient-to-r from-slate-400 to-slate-300 h-2 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${completionPercentage}%` }}
           />
-        </div>
+        </div> */}
       </div>
 
       {/* Questions */}
