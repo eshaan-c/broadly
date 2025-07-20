@@ -12,7 +12,7 @@ type ResultsPageProps = {
 }
 
 export default function ResultsPage({ result, onBack }: ResultsPageProps) {
-  const sortedOptions = [...result.options].sort((a, b) => b.score - a.score)
+  const sortedOptions = [...result.options].sort((a: any, b: any) => b.score - a.score)
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -28,7 +28,7 @@ ${result.scenario || "Decision scenario analysis"}
 ## Recommended Choice: ${result.primaryChoice}
 
 ### Analysis Summary
-${result.recommendation}
+${result.recommendation.reasoning || result.recommendation}
 
 ---
 
@@ -36,7 +36,7 @@ ${result.recommendation}
 
 ${sortedOptions
         .map(
-          (option: any, index: number) => `### ${index + 1}. ${option.name} (Score: ${option.score}/10)
+          (option: any, index: number) => `### ${index + 1}. ${option.name} (Score: ${option.score.toFixed(2)}/10)
 
 **Description:** ${option.description}
 
@@ -56,11 +56,9 @@ ${option.cons.map((con: string) => `• ${con}`).join("\n")}
 
 ${result.criteria
         .map((criterion: any) => {
-          const weightMatch = criterion.analysis.match(/weight (\d+)%/)
-          const weight = weightMatch ? weightMatch[1] : "N/A"
-          const cleanAnalysis = criterion.analysis.replace(/\s*$$weight \d+%$$/, "").trim()
+          const weight = (criterion.weight * 100).toFixed(0)
           return `**${criterion.name}** (Weight: ${weight}%)
-${cleanAnalysis}`
+${criterion.description}`
         })
         .join("\n\n")}
 
@@ -151,7 +149,7 @@ ${cleanAnalysis}`
                           <p className="text-sm text-slate-400 leading-relaxed mb-3">{option.description}</p>
                           <div className="flex items-center space-x-3">
                             <span className="text-sm md:text-base font-semibold text-slate-300">
-                              Score: {option.score}
+                              Score: {option.score.toFixed(2)}
                             </span>
                             <div className="flex">
                               {[...Array(5)].map((_, i) => (
@@ -203,7 +201,7 @@ ${cleanAnalysis}`
               </div>
             </div>
 
-            {/* Recommendation Section - moved up */}
+            {/* Recommendation Section */}
             <div>
               <div className="relative group transform transition-all duration-300 hover:scale-[1.01]">
                 <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 rounded-xl blur-sm group-hover:blur-md transition-all duration-300"></div>
@@ -230,7 +228,7 @@ ${cleanAnalysis}`
 
                       <div className="max-h-[200px] md:max-h-[300px] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-amber-500/20 scrollbar-track-transparent">
                         <p className="text-amber-200/80 font-medium text-sm md:text-base leading-relaxed whitespace-pre-line">
-                          {result.recommendation}
+                          {result.recommendation.reasoning || result.recommendation}
                         </p>
                       </div>
                     </div>
@@ -239,13 +237,127 @@ ${cleanAnalysis}`
               </div>
             </div>
 
-            {/* Evaluation Criteria - moved down */}
+            {/* Detailed Criteria Analysis - Only show if data exists */}
+            {result.criteriaComparisons && result.criteriaComparisons.length > 0 && (
+              <div className="space-y-6">
+                <h3 className="text-lg md:text-xl font-semibold text-slate-200">
+                  Criteria Performance Breakdown
+                </h3>
+
+                {/* Criteria comparison grid */}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-700">
+                        <th className="text-left py-3 px-4 text-sm font-medium text-slate-400">
+                          Criteria
+                        </th>
+                        {sortedOptions.map((option: any) => (
+                          <th key={option.name} className="text-center py-3 px-4 text-sm font-medium text-slate-300">
+                            {option.name}
+                          </th>
+                        ))}
+                        <th className="text-center py-3 px-4 text-sm font-medium text-slate-400">
+                          Weight
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.criteriaComparisons.map((criterion: any, idx: number) => {
+                        const scores = Object.values(criterion.scores) as number[];
+                        const maxScore = Math.max(...scores);
+
+                        return (
+                          <tr key={idx} className="border-b border-slate-800/50 hover:bg-slate-800/20 transition-colors">
+                            <td className="py-4 px-4">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-slate-300">
+                                  {criterion.name}
+                                </span>
+                                {criterion.impact === 'high' && (
+                                  <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full">
+                                    Decisive
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            {sortedOptions.map((option: any) => {
+                              const score = criterion.scores[option.name] || 0;
+                              const isWinner = score === maxScore && score > 0;
+
+                              return (
+                                <td key={option.name} className="text-center py-4 px-4">
+                                  <div className={cn(
+                                    "inline-flex items-center justify-center w-12 h-12 rounded-lg font-semibold text-sm transition-all",
+                                    isWinner
+                                      ? "bg-gradient-to-br from-amber-500/30 to-yellow-500/30 text-amber-300 border border-amber-500/40"
+                                      : "bg-slate-700/30 text-slate-400"
+                                  )}>
+                                    {score.toFixed(1)}
+                                  </div>
+                                </td>
+                              );
+                            })}
+                            <td className="text-center py-4 px-4">
+                              <span className="text-sm font-medium text-slate-400">
+                                {(criterion.weight * 100).toFixed(0)}%
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Insights - Only show if data exists */}
+                {(result.mostDecisiveCriteria?.length > 0 || result.leastDecisiveCriteria?.length > 0) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                    {result.mostDecisiveCriteria?.length > 0 && (
+                      <Card className="bg-slate-700/30 border-slate-600/50">
+                        <CardContent className="p-4">
+                          <h4 className="text-sm font-semibold text-amber-400 mb-2">
+                            Most Decisive Criteria
+                          </h4>
+                          <ul className="space-y-1 text-sm text-slate-300">
+                            {result.mostDecisiveCriteria.map((criteria: string) => (
+                              <li key={criteria} className="flex items-center space-x-2">
+                                <span className="text-amber-400">→</span>
+                                <span>{criteria}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {result.leastDecisiveCriteria?.length > 0 && (
+                      <Card className="bg-slate-700/30 border-slate-600/50">
+                        <CardContent className="p-4">
+                          <h4 className="text-sm font-semibold text-slate-400 mb-2">
+                            Least Differentiating
+                          </h4>
+                          <ul className="space-y-1 text-sm text-slate-300">
+                            {result.leastDecisiveCriteria.map((criteria: string) => (
+                              <li key={criteria} className="flex items-center space-x-2">
+                                <span className="text-slate-500">→</span>
+                                <span>{criteria}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Evaluation Criteria */}
             <div>
-              <h3 className="text-lg md:text-xl font-semibold mb-6 text-slate-200">Evaluation Criteria</h3>
+              {/* <h3 className="text-lg md:text-xl font-semibold mb-6 text-slate-200">Evaluation Criteria</h3> */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {result.criteria.map((criterion: any, index: number) => {
-                  const weightMatch = criterion.analysis.match(/weight (\d+)%/)
-                  const weight = weightMatch ? Number.parseInt(weightMatch[1]) : 0
+                  const weight = criterion.weight * 100
 
                   return (
                     <div key={index} className="relative group">
@@ -254,12 +366,12 @@ ${cleanAnalysis}`
                         <div className="flex items-start justify-between mb-4">
                           <h4 className="font-semibold text-slate-200 text-base md:text-lg pr-4">{criterion.name}</h4>
                           <div className="text-right flex-shrink-0">
-                            <div className="text-xl md:text-2xl font-bold text-slate-300">{weight}%</div>
+                            <div className="text-xl md:text-2xl font-bold text-slate-300">{weight.toFixed(0)}%</div>
                             <div className="text-xs text-slate-500 uppercase tracking-wide">Weight</div>
                           </div>
                         </div>
                         <p className="text-sm text-slate-400 leading-relaxed mb-4">
-                          {criterion.analysis.replace(/\s*$$weight \d+%$$/, "").trim()}
+                          {criterion.description}
                         </p>
                         <div className="w-full bg-slate-800/60 rounded-full h-2.5 overflow-hidden">
                           <div
