@@ -83,11 +83,11 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
 
   return (
     <Card className="w-full max-w-4xl mx-auto bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-2xl hover:shadow-3xl transition-all duration-500">
-      <CardContent className="pt-6 md:pt-10 pb-6 md:pb-8 px-4 md:px-8 space-y-8 md:space-y-10">
+      <CardContent className="pt-8 pb-8 px-4 md:px-8 space-y-8 md:space-y-10">
         <form onSubmit={onSubmit} className="space-y-8 md:space-y-10">
           <div className="space-y-4">
             <div className="flex items-center justify-center space-x-2 mb-2">
-              <Sparkles className="h-5 w-5 text-slate-400" />
+              {/* <Sparkles className="h-5 w-5 text-slate-400" /> */}
               <Label htmlFor="scenario" className="text-lg md:text-xl text-slate-200 font-medium text-center">
                 Describe your decision scenario
               </Label>
@@ -95,7 +95,7 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
             <div className="relative group">
               <Textarea
                 id="scenario"
-                className="min-h-[140px] md:min-h-[160px] resize-none bg-slate-700/60 border-slate-600/50 text-slate-100 placeholder:text-transparent focus:border-slate-400 focus:ring-slate-400/30 text-base leading-relaxed relative z-10 transition-all duration-300 focus:bg-slate-700/80 group-hover:border-slate-500/70"
+                className="min-h-[160px] md:min-h-[180px] resize-none bg-slate-700/60 border-slate-600/50 text-slate-100 placeholder:text-transparent focus:border-slate-400 focus:ring-slate-400/30 text-base leading-relaxed relative z-10 transition-all duration-300 focus:bg-slate-700/80 group-hover:border-slate-500/70 touch-manipulation"
                 value={scenario}
                 onChange={(e) => setScenario(e.target.value)}
                 required
@@ -109,7 +109,7 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
           <div className="space-y-6">
             <div className="text-center">
               <Label className="text-lg md:text-xl text-slate-200 font-medium">Analysis Depth</Label>
-              <p className="text-sm text-slate-400 mt-1 px-2">Choose how thorough you want the analysis to be</p>
+              <p className="text-sm text-slate-400 mt-1">Choose how thorough you want the analysis to be</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {depthOptions.map((opt) => (
@@ -129,12 +129,12 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
           <div className="pt-4">
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-slate-600 to-slate-500 hover:from-slate-500 hover:to-slate-400 text-white font-medium py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="w-full bg-gradient-to-r from-slate-600 to-slate-500 hover:from-slate-500 hover:to-slate-400 text-white font-medium py-4 text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group min-h-[56px] touch-manipulation"
               disabled={!scenario.trim()}
             >
               <span className="flex items-center justify-center space-x-2">
                 <span>Continue</span>
-                <Sparkles className="h-4 w-4 group-hover:animate-pulse" />
+                {/* <Sparkles className="h-4 w-4 group-hover:animate-pulse" /> */}
               </span>
             </Button>
           </div>
