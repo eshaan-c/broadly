@@ -31,39 +31,6 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
         </CardHeader>
         <CardContent className="max-h-[60vh] overflow-y-auto">
           <div className="space-y-8">
-            {/* Enhanced Primary Choice Section */}
-            <div>
-              <h3 className="text-lg font-medium mb-4 text-slate-200">Primary Choice</h3>
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 rounded-lg blur"></div>
-                <div className="relative bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-400/30 rounded-lg p-6">
-                  <div className="flex items-center space-x-3">
-                    <Trophy className="h-8 w-8 text-amber-400" />
-                    <div>
-                      <p className="text-2xl font-bold text-amber-300 mb-1">{result.primaryChoice}</p>
-                      <p className="text-sm text-amber-200/80">Recommended choice</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Enhanced Recommendation Section */}
-            <div>
-              <h3 className="text-lg font-medium mb-4 text-slate-200">Recommendation</h3>
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 rounded-lg blur"></div>
-                <div className="relative bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-400/30 rounded-lg p-6">
-                  <div className="flex items-start space-x-3">
-                    <Star className="h-6 w-6 text-blue-400 mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="text-base text-blue-100 leading-relaxed">{result.recommendation}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Options Section with Sorted Results */}
             <div>
               <h3 className="text-lg font-medium mb-3 text-slate-200">Options</h3>
@@ -116,7 +83,40 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
               </div>
             </div>
 
-            {/* Enhanced Evaluation Criteria */}
+            {/* Primary Choice Section */}
+            <div>
+              <h3 className="text-lg font-medium mb-4 text-slate-200">Primary Choice</h3>
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 rounded-lg blur"></div>
+                <div className="relative bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-400/30 rounded-lg p-6">
+                  <div className="flex items-center space-x-3">
+                    <Trophy className="h-8 w-8 text-amber-400" />
+                    <div>
+                      <p className="text-2xl font-bold text-amber-300 mb-1">{result.primaryChoice}</p>
+                      <p className="text-sm text-amber-200/80">Recommended choice</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recommendation Section */}
+            <div>
+              <h3 className="text-lg font-medium mb-4 text-slate-200">Recommendation</h3>
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 rounded-lg blur"></div>
+                <div className="relative bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-400/30 rounded-lg p-6">
+                  <div className="flex items-start space-x-3">
+                    <Star className="h-6 w-6 text-blue-400 mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="text-base text-blue-100 leading-relaxed">{result.recommendation}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Evaluation Criteria Section */}
             <div>
               <h3 className="text-lg font-medium mb-4 text-slate-200 flex items-center space-x-2">
                 <BarChart3 className="h-5 w-5" />
@@ -124,7 +124,6 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.criteria.map((criterion: any, index: number) => {
-                  // Extract weight from analysis text
                   const weightMatch = criterion.analysis.match(/weight (\d+)%/)
                   const weight = weightMatch ? Number.parseInt(weightMatch[1]) : 0
 
@@ -144,7 +143,6 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
                         <p className="text-sm text-slate-400 leading-relaxed">
                           {criterion.analysis.replace(/\s*\(.*?weight \d+%.*?\)/, '').trim()}
                         </p>
-                        {/* Visual weight indicator */}
                         <div className="mt-3 w-full bg-slate-800 rounded-full h-2">
                           <div
                             className="bg-gradient-to-r from-slate-400 to-slate-300 h-2 rounded-full transition-all duration-500"
