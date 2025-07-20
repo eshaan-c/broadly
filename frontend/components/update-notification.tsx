@@ -54,11 +54,11 @@ export default function UpdateNotification({
         if (!showByDefault) return
 
         // Check if user has already dismissed this version
-        // const dismissedVersion = localStorage.getItem("broadly-dismissed-update")
-        // if (dismissedVersion === version) {
-        //     setIsDismissed(true)
-        //     return
-        // }
+        const dismissedVersion = localStorage.getItem("broadly-dismissed-update")
+        if (dismissedVersion === version) {
+            setIsDismissed(true)
+            return
+        }
 
         // Show notification after a brief delay
         const timer = setTimeout(() => {
