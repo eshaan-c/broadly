@@ -9,6 +9,7 @@ import Results from "@/components/results"
 import LoadingScreen from "@/components/loading-screen"
 import { decisionAPI, type AnalyzeResponse } from "@/lib/api"
 import { calculateWeightedScores, findBestOption, generateCriteriaComparisons } from "@/lib/score_calculations"
+import UpdateNotification from "@/components/update-notification"
 
 type Step = "scenario" | "questions" | "results"
 
@@ -232,6 +233,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Update Notification */}
+      <UpdateNotification />
 
       {/* Single scrollable container */}
       <div className="relative min-h-screen">
