@@ -28,7 +28,23 @@ export default function Home() {
     }
   }, [currentStep, loading])
 
-  /* ------- first step: /analyze ------- */
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape to go back (except on scenario step)
+      if (e.key === "Escape" && currentStep !== "scenario") {
+        if (currentStep === "questions") {
+          setCurrentStep("scenario")
+        } else if (currentStep === "results") {
+          setCurrentStep("scenario")
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [currentStep])
+
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -37,7 +53,6 @@ export default function Home() {
     try {
       const data = await decisionAPI.analyze({ scenario, depth })
 
-      // transform questions
       const qs = data.questions.map((q: any, idx: number) => ({
         id: `q_${idx}`,
         question: q.text,
@@ -50,13 +65,14 @@ export default function Home() {
       setCurrentStep("questions")
     } catch (err) {
       console.error("Analyze failed:", err)
-      alert("Analysis failed. Please try again.")
+      // Better error handling
+      const errorMessage = err instanceof Error ? err.message : "Analysis failed. Please try again."
+      alert(errorMessage)
     } finally {
       setLoading(false)
     }
   }
 
-  /* ------- second step: /evaluate ------- */
   const handleEvaluate = async (answers: Record<string, any>) => {
     if (!framework) return
     setLoading(true)
@@ -68,7 +84,6 @@ export default function Home() {
         responses: answers,
       })
 
-      // Transform the response to match what ResultsPage expects
       const merged = {
         ...res,
         options: framework.options.map((opt: any) => ({
@@ -93,10 +108,20 @@ export default function Home() {
       setCurrentStep("results")
     } catch (err) {
       console.error("Evaluate failed:", err)
-      alert("Evaluation failed. Please try again.")
+      const errorMessage = err instanceof Error ? err.message : "Evaluation failed. Please try again."
+      alert(errorMessage)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleRestart = () => {
+    setScenario("")
+    setDepth("balanced")
+    setCurrentStep("scenario")
+    setQuestions([])
+    setResult(null)
+    setFramework(null)
   }
 
   return (
@@ -106,11 +131,34 @@ export default function Home() {
 
       {/* Subtle animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-slate-800/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-slate-800/10 rounded-full blur-3xl animate-pulse-glow"></div>
         <div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-slate-700/10 rounded-full blur-3xl animate-pulse"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-slate-700/10 rounded-full blur-3xl animate-pulse-glow"
           style={{ animationDelay: "2s" }}
         ></div>
+      </div>
+
+      {/* Progress indicator */}
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
+        <div className="bg-slate-900/90 backdrop-blur-md rounded-full px-4 py-2 border border-slate-800/50">
+          <div className="flex items-center space-x-2 text-xs text-slate-400">
+            <div
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                currentStep === "scenario" ? "bg-slate-300" : "bg-slate-600"
+              }`}
+            />
+            <div
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                currentStep === "questions" ? "bg-slate-300" : "bg-slate-600"
+              }`}
+            />
+            <div
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                currentStep === "results" ? "bg-slate-300" : "bg-slate-600"
+              }`}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Single scrollable container */}
@@ -121,9 +169,9 @@ export default function Home() {
         <div className="px-4 py-8 pb-24">
           <div className="w-full max-w-4xl mx-auto">
             {/* Enhanced Header */}
-            <div className="text-center mb-8 md:mb-12">
+            <div className="text-center mb-8 md:mb-12 mt-16 md:mt-20">
               <div className="relative inline-block">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-slate-200 via-white to-slate-300 bg-clip-text text-transparent mb-3 md:mb-4 tracking-tight">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-slate-200 via-white to-slate-300 bg-clip-text text-transparent mb-3 md:mb-4 tracking-tight animate-gradient">
                   broadly
                 </h1>
                 {/* Subtle glow effect */}
@@ -139,7 +187,7 @@ export default function Home() {
             </div>
 
             {currentStep === "scenario" && (
-              <div className="animate-in fade-in duration-700">
+              <div className="animate-fade-in-up">
                 <ScenarioForm
                   scenario={scenario}
                   setScenario={setScenario}
@@ -151,14 +199,18 @@ export default function Home() {
             )}
 
             {currentStep === "questions" && (
-              <div className="animate-in fade-in duration-700">
-                <QuestionForm questions={questions} onSubmit={handleEvaluate} />
+              <div className="animate-fade-in-up">
+                <QuestionForm
+                  questions={questions}
+                  onSubmit={handleEvaluate}
+                  onBack={() => setCurrentStep("scenario")}
+                />
               </div>
             )}
 
             {currentStep === "results" && result && (
-              <div className="animate-in fade-in duration-700">
-                <Results result={result} />
+              <div className="animate-fade-in-up">
+                <Results result={result} onBack={handleRestart} />
               </div>
             )}
           </div>
@@ -167,13 +219,13 @@ export default function Home() {
         {/* Enhanced Footer with better positioning */}
         <footer className="fixed bottom-0 left-0 right-0 z-10 p-4 pointer-events-none">
           <div className="flex justify-center">
-            <div className="flex items-center justify-center space-x-2 bg-slate-900/90 backdrop-blur-md rounded-full px-4 py-2 border border-slate-800/50 pointer-events-auto">
+            <div className="flex items-center justify-center space-x-2 bg-slate-900/90 backdrop-blur-md rounded-full px-4 py-2 border border-slate-800/50 pointer-events-auto transition-smooth hover:bg-slate-900/95">
               <span className="text-sm text-slate-500">by</span>
               <a
                 href="https://github.com/eshaan-c"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-slate-500 underline hover:text-slate-300 transition-colors duration-200 font-medium"
+                className="text-sm text-slate-500 underline hover:text-slate-300 transition-colors duration-200 font-medium focus-ring rounded"
               >
                 Eshaan
               </a>

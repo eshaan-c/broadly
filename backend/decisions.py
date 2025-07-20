@@ -27,6 +27,7 @@ def evaluate_decision():
     data = request.get_json()
     framework = data.get("framework", {})
     responses = data.get("responses", {})
+    print(f"Responses: {responses}")
 
     # Call the DecisionEngine evaluation
     result = decision_engine.evaluate_options(framework=framework, responses=responses)
