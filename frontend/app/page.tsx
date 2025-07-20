@@ -154,15 +154,6 @@ export default function Home() {
             score: scores?.totalScore || 0,
             rawCriteriaScores: scores?.rawCriteriaScores || {},
             weightedCriteriaScores: scores?.weightedCriteriaScores || {},
-
-            // Include rationales for transparency
-            criteriaRationales: Object.entries(optionEval?.criteria_scores || {}).reduce(
-              (acc, [criterion, scoreData]) => {
-                acc[criterion] = scoreData.rationale
-                return acc
-              },
-              {} as Record<string, string>
-            )
           }
         }),
 
@@ -284,14 +275,13 @@ export default function Home() {
                 <QuestionForm
                   questions={questions}
                   onSubmit={handleEvaluate}
-                  onBack={() => setCurrentStep("scenario")}
                 />
               </div>
             )}
 
             {currentStep === "results" && result && (
               <div className="animate-fade-in-up">
-                <Results result={result} onBack={handleRestart} />
+                <Results result={result} />
               </div>
             )}
           </div>

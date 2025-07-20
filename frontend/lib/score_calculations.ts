@@ -2,7 +2,7 @@
 
 interface CriteriaScore {
     raw_score: number;
-    rationale: string;
+    // rationale: string;
 }
 
 interface OptionScore {
