@@ -4,18 +4,21 @@ export async function POST(request: Request) {
   try {
     const { framework, responses } = await request.json()
 
+    // Check if user skipped questions
+    const userSkippedQuestions = responses._skipQuestions === true
+
     // Simulate processing time
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // Mock evaluation response
+    // Mock evaluation response - adjust based on whether questions were skipped
     const response = {
       option_scores: {
         Belize: {
-          total_score: 8.2,
+          total_score: userSkippedQuestions ? 7.8 : 8.2,
           criteria_scores: {
-            Budget: 7.5,
-            Activities: 9.0,
-            Safety: 7.0,
+            Budget: userSkippedQuestions ? 7.0 : 7.5,
+            Activities: userSkippedQuestions ? 8.5 : 9.0,
+            Safety: userSkippedQuestions ? 7.5 : 7.0,
             Weather: 8.5,
             Accessibility: 6.0,
           },
@@ -30,13 +33,13 @@ export async function POST(request: Request) {
             "Some areas require careful planning",
             "Fewer luxury accommodations",
           ],
-          confidence: "high",
+          confidence: userSkippedQuestions ? "medium" : "high",
         },
         "Costa Rica": {
-          total_score: 8.7,
+          total_score: userSkippedQuestions ? 8.3 : 8.7,
           criteria_scores: {
             Budget: 7.0,
-            Activities: 9.5,
+            Activities: userSkippedQuestions ? 9.0 : 9.5,
             Safety: 8.5,
             Weather: 8.0,
             Accessibility: 8.0,
@@ -52,10 +55,10 @@ export async function POST(request: Request) {
             "Rainy season overlap in some regions",
             "Popular spots can be crowded",
           ],
-          confidence: "high",
+          confidence: userSkippedQuestions ? "medium" : "high",
         },
         Barbados: {
-          total_score: 7.8,
+          total_score: userSkippedQuestions ? 7.5 : 7.8,
           criteria_scores: {
             Budget: 6.0,
             Activities: 7.5,
@@ -79,8 +82,9 @@ export async function POST(request: Request) {
       },
       recommendation: {
         primary_choice: "Costa Rica",
-        reasoning:
-          "Based on your preferences for adventure activities and group travel, Costa Rica offers the best combination of safety, diverse experiences, and value. With your budget range and interest in both adventure and cultural experiences, it provides the most comprehensive tropical experience.",
+        reasoning: userSkippedQuestions
+          ? "Based on your scenario description, Costa Rica appears to offer the best balance of adventure opportunities, safety, and overall value for a tropical fall break. This assessment is based on general travel factors since no specific preferences were provided."
+          : "Based on your preferences for adventure activities and group travel, Costa Rica offers the best combination of safety, diverse experiences, and value. With your budget range and interest in both adventure and cultural experiences, it provides the most comprehensive tropical experience.",
         alternatives: [
           "Belize is an excellent choice if you prioritize marine activities and English communication",
           "Barbados offers the most relaxing beach experience if you prefer a more laid-back trip",
@@ -95,7 +99,7 @@ export async function POST(request: Request) {
         robust_choice: "Costa Rica",
       },
       model_used: "gpt-4",
-      complexity_score: 7.5,
+      complexity_score: userSkippedQuestions ? 6.5 : 7.5,
     }
 
     return NextResponse.json(response)

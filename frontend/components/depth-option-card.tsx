@@ -57,12 +57,21 @@ export default function DepthOptionCard({ title, tagline, examples, value, selec
   return (
     <Card
       className={cn(
-        "cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-slate-500/20 bg-slate-800/40 backdrop-blur-sm group hover:scale-[1.02] relative overflow-hidden touch-manipulation",
+        "cursor-pointer transition-smooth card-hover bg-slate-800/40 backdrop-blur-sm group relative overflow-hidden touch-manipulation focus-ring",
         selected
           ? `border-2 shadow-lg shadow-slate-400/20 bg-gradient-to-br ${getDepthGradient(value, selected)}`
           : `border border-slate-600/50 hover:border-slate-500/70 bg-gradient-to-br ${getHoverGradient(value)}`,
       )}
       onClick={() => onSelect(value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          onSelect(value)
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-pressed={selected}
       style={{ minHeight: "180px" }}
     >
       {/* Subtle shine effect on hover */}
@@ -73,7 +82,7 @@ export default function DepthOptionCard({ title, tagline, examples, value, selec
           {/* Enhanced Icon with background */}
           <div
             className={cn(
-              "p-3 md:p-4 rounded-full transition-all duration-300 relative",
+              "p-3 md:p-4 rounded-full transition-smooth relative",
               selected
                 ? "bg-slate-700/60 shadow-lg scale-110"
                 : "bg-slate-700/40 group-hover:bg-slate-700/60 group-hover:scale-110",
