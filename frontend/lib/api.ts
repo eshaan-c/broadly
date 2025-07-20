@@ -43,30 +43,38 @@ interface AnalyzeResponse {
 
 interface EvaluateRequest {
     framework: AnalyzeResponse;
-    responses: Record<string, any>;
+    responses: Record<string, any> | { _skipQuestions: true };
 }
 
 interface EvaluateResponse {
     option_scores: Record<string, {
-        total_score: number;
-        criteria_scores: Record<string, number>;
+        criteria_scores: Record<string, {
+            raw_score: number;     // 0.0 - 10.0
+            // rationale: string;
+        }>;
         strengths: string[];
         weaknesses: string[];
         confidence: 'high' | 'medium' | 'low';
+        inferred_option?: boolean;
     }>;
     recommendation: {
-        primary_choice: string;
+        primary_choice: string;  // Recalculated on frontend
         reasoning: string;
         alternatives: string[];
         red_flags: string[];
     };
-    sensitivity_analysis?: {
-        critical_factors: string[];
-        robust_choice: string;
+    insights?: {
+        key_tensions: string[];
+        surprise_findings: string[];
+        criteria_patterns: {
+            highest_variance: string;
+            lowest_variance: string;
+        };
     };
+    skip_questions?: boolean; // Indicates if questions were skipped
     model_used?: string;
-    complexity_score?: number;
 }
+
 
 class DecisionAPI {
     private async fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -112,4 +120,4 @@ class DecisionAPI {
 }
 
 export const decisionAPI = new DecisionAPI();
-export type { AnalyzeResponse, EvaluateResponse };
+export type { AnalyzeResponse, EvaluateResponse, AnalyzeRequest, EvaluateRequest };
