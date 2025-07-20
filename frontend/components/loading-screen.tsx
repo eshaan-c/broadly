@@ -69,37 +69,40 @@ export default function LoadingScreen({ message }: LoadingScreenProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-lg"
     >
-      <div className="flex flex-col items-center space-y-8">
-        {/* Animated logo/icon */}
+      <div className="flex flex-col items-center space-y-10 p-8">
+        {/* Enhanced Animated logo/icon */}
         <div className="relative">
           <motion.div
             animate={{
               rotate: 360,
             }}
             transition={{
-              duration: 2,
+              duration: 3,
               repeat: Number.POSITIVE_INFINITY,
               ease: "linear",
             }}
-            className="w-16 h-16 border-2 border-slate-600 rounded-full"
+            className="w-20 h-20 border-2 border-slate-600/50 rounded-full relative"
           >
             <motion.div
               animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.5, 1, 0.5],
+                scale: [1, 1.3, 1],
+                opacity: [0.4, 1, 0.4],
               }}
               transition={{
-                duration: 1.5,
+                duration: 2,
                 repeat: Number.POSITIVE_INFINITY,
                 ease: "easeInOut",
               }}
-              className="absolute inset-2 bg-gradient-to-r from-slate-300 to-white rounded-full"
+              className="absolute inset-3 bg-gradient-to-r from-slate-300 to-white rounded-full shadow-lg"
             />
+
+            {/* Enhanced glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-400/20 to-slate-300/20 rounded-full blur-xl animate-pulse"></div>
           </motion.div>
 
-          {/* Orbiting dots */}
+          {/* Enhanced Orbiting dots */}
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
@@ -107,95 +110,103 @@ export default function LoadingScreen({ message }: LoadingScreenProps) {
                 rotate: 360,
               }}
               transition={{
-                duration: 3,
+                duration: 4,
                 repeat: Number.POSITIVE_INFINITY,
                 ease: "linear",
-                delay: i * 0.5,
+                delay: i * 0.6,
               }}
               className="absolute inset-0"
             >
-              <div className="w-2 h-2 bg-slate-300 rounded-full absolute -top-1 left-1/2 transform -translate-x-1/2" />
+              <div className="w-3 h-3 bg-gradient-to-r from-slate-300 to-slate-200 rounded-full absolute -top-1.5 left-1/2 transform -translate-x-1/2 shadow-lg" />
             </motion.div>
           ))}
         </div>
 
-        {/* Loading text with transitions */}
-        <div className="text-center space-y-2">
-          <div className="h-8 flex items-center justify-center">
+        {/* Enhanced Loading text with transitions */}
+        <div className="text-center space-y-4">
+          <div className="h-10 flex items-center justify-center">
             <motion.p
               key={currentMessageIndex}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.5 }}
-              className="text-slate-200 text-lg font-medium"
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-slate-200 text-xl font-medium tracking-wide"
             >
               {loadingMessages[currentMessageIndex]}
             </motion.p>
           </div>
 
-          {/* Animated dots */}
-          <div className="flex justify-center space-x-1">
+          {/* Enhanced Animated dots */}
+          <div className="flex justify-center space-x-2">
             {[0, 1, 2].map((i) => (
               <motion.div
                 key={i}
                 animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: [0.3, 1, 0.3],
+                  scale: [1, 1.8, 1],
+                  opacity: [0.4, 1, 0.4],
                 }}
                 transition={{
-                  duration: 1,
+                  duration: 1.2,
                   repeat: Number.POSITIVE_INFINITY,
-                  delay: i * 0.2,
+                  delay: i * 0.3,
                 }}
-                className="w-1 h-1 bg-slate-400 rounded-full"
+                className="w-1.5 h-1.5 bg-slate-400 rounded-full"
               />
             ))}
           </div>
         </div>
 
         {/* Enhanced Progress bar with stage-based progress */}
-        <div className="w-64 h-2 bg-slate-800 rounded-full overflow-hidden">
+        <div className="w-80 h-2.5 bg-slate-800/60 rounded-full overflow-hidden backdrop-blur-sm border border-slate-700/50">
           {currentMessageIndex < 2 ? (
             // Stages 1 & 2: Show actual progress
             <motion.div
-              className="h-full bg-gradient-to-r from-slate-300 to-white rounded-full"
+              className="h-full bg-gradient-to-r from-slate-300 via-white to-slate-300 rounded-full shadow-inner"
               initial={{ width: "0%" }}
               animate={{ width: `${getStageProgress()}%` }}
               transition={{ duration: 0.1, ease: "linear" }}
             />
           ) : (
-            // Stage 3: Indeterminate progress
+            // Stage 3: Enhanced indeterminate progress
             <motion.div
               animate={{
                 x: ["-100%", "100%"],
               }}
               transition={{
-                duration: 2,
+                duration: 2.5,
                 repeat: Number.POSITIVE_INFINITY,
                 ease: "easeInOut",
               }}
-              className="h-full w-1/3 bg-gradient-to-r from-transparent via-slate-300 to-transparent"
+              className="h-full w-2/5 bg-gradient-to-r from-transparent via-slate-300 to-transparent rounded-full"
             />
           )}
         </div>
 
         {/* Enhanced Step indicator with progress */}
-        <div className="flex space-x-3">
+        <div className="flex space-x-6">
           {loadingMessages.map((_, index) => (
-            <div key={index} className="flex flex-col items-center space-y-1">
+            <div key={index} className="flex flex-col items-center space-y-2">
               <motion.div
-                className={`w-3 h-3 rounded-full transition-colors duration-500 ${
+                className={`w-4 h-4 rounded-full transition-all duration-500 border-2 ${
                   index < currentMessageIndex
-                    ? "bg-slate-300"
+                    ? "bg-slate-300 border-slate-300 shadow-lg"
                     : index === currentMessageIndex
-                      ? "bg-slate-400"
-                      : "bg-slate-600"
+                      ? "bg-slate-400 border-slate-400 shadow-md"
+                      : "bg-transparent border-slate-600"
                 }`}
                 animate={index === currentMessageIndex ? { scale: [1, 1.2, 1] } : {}}
-                transition={{ duration: 0.5, repeat: Number.POSITIVE_INFINITY }}
-              />
-              <div className="text-xs text-slate-500 text-center min-w-[60px]">
+                transition={{ duration: 0.8, repeat: Number.POSITIVE_INFINITY }}
+              >
+                {index < currentMessageIndex && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                  />
+                )}
+              </motion.div>
+              <div className="text-xs text-slate-500 text-center min-w-[60px] font-medium">
                 {index < currentMessageIndex
                   ? "✓"
                   : index === currentMessageIndex
@@ -206,8 +217,10 @@ export default function LoadingScreen({ message }: LoadingScreenProps) {
           ))}
         </div>
 
-        {/* Time elapsed indicator */}
-        <div className="text-xs text-slate-500">{Math.floor(timeElapsed / 1000)}s elapsed</div>
+        {/* Enhanced Time elapsed indicator */}
+        <div className="text-sm text-slate-500 bg-slate-800/40 px-4 py-2 rounded-full border border-slate-700/50 backdrop-blur-sm">
+          {Math.floor(timeElapsed / 1000)}s elapsed
+        </div>
       </div>
     </motion.div>
   )

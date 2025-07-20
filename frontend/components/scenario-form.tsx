@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import DepthOptionCard from "@/components/depth-option-card"
 import AnimatedPlaceholder from "@/components/animated-placeholder"
+import { Sparkles } from "lucide-react"
 
 interface Props {
   scenario: string
@@ -39,12 +40,10 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
     "Inherited my grandmother's house in my hometown. Should I sell it, rent it out, or move back and work remotely? I left that town for good reasons...",
     "My best friend wants me to be her business partner in a new venture. Excited about the idea but worried about mixing friendship with business...",
     "Company offered me a promotion that requires relocating to Singapore for 2-3 years. Great for career but I'd be far from aging parents...",
-    "Deciding whether to go back to school for my MBA, pursue online certifications, or focus on climbing the ladder at my current company..."
-  ];
+    "Deciding whether to go back to school for my MBA, pursue online certifications, or focus on climbing the ladder at my current company...",
+  ]
 
-  const animatedPlaceholderRef = useRef(
-    <AnimatedPlaceholder placeholders={placeholderExamples} interval={9000} />
-  )
+  const animatedPlaceholderRef = useRef(<AnimatedPlaceholder placeholders={placeholderExamples} interval={9000} />)
 
   const depthOptions = [
     {
@@ -83,31 +82,36 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
   ]
 
   return (
-    <Card
-      className="w-full max-w-3xl mx-auto bg-slate-800/30 border-slate-700 backdrop-blur-sm shadow-2xl"
-      style={{ minHeight: "600px" }} // Set a consistent minimum height for the form
-    >
-      <CardContent className="pt-8 space-y-8">
-        <form onSubmit={onSubmit} className="space-y-8">
-          <div className="space-y-3">
-            <Label htmlFor="scenario" className="text-lg text-slate-200 font-medium">
-              Describe your decision scenario
-            </Label>
-            <div className="relative">
+    <Card className="w-full max-w-4xl mx-auto bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-2xl hover:shadow-3xl transition-all duration-500">
+      <CardContent className="pt-6 md:pt-10 pb-6 md:pb-8 px-4 md:px-8 space-y-8 md:space-y-10">
+        <form onSubmit={onSubmit} className="space-y-8 md:space-y-10">
+          <div className="space-y-4">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Sparkles className="h-5 w-5 text-slate-400" />
+              <Label htmlFor="scenario" className="text-lg md:text-xl text-slate-200 font-medium text-center">
+                Describe your decision scenario
+              </Label>
+            </div>
+            <div className="relative group">
               <Textarea
                 id="scenario"
-                className="min-h-[140px] resize-none bg-slate-700/50 border-slate-600 text-slate-100 placeholder:text-transparent focus:border-slate-400 focus:ring-slate-400/20 text-base leading-relaxed relative z-10"
+                className="min-h-[140px] md:min-h-[160px] resize-none bg-slate-700/60 border-slate-600/50 text-slate-100 placeholder:text-transparent focus:border-slate-400 focus:ring-slate-400/30 text-base leading-relaxed relative z-10 transition-all duration-300 focus:bg-slate-700/80 group-hover:border-slate-500/70"
                 value={scenario}
                 onChange={(e) => setScenario(e.target.value)}
                 required
               />
               {!scenario && animatedPlaceholderRef.current}
+              {/* Subtle focus indicator */}
+              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-slate-400/0 via-slate-400/5 to-slate-400/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <Label className="text-lg text-slate-200 font-medium">Analysis Depth</Label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-6">
+            <div className="text-center">
+              <Label className="text-lg md:text-xl text-slate-200 font-medium">Analysis Depth</Label>
+              <p className="text-sm text-slate-400 mt-1 px-2">Choose how thorough you want the analysis to be</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {depthOptions.map((opt) => (
                 <DepthOptionCard
                   key={opt.value}
@@ -122,13 +126,18 @@ export default function ScenarioForm({ scenario, setScenario, depth, setDepth, o
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full bg-gradient-to-r from-slate-600 to-slate-500 hover:from-slate-500 hover:to-slate-400 text-white font-medium py-4 text-lg shadow-lg hover:shadow-xl transition-all"
-            disabled={!scenario.trim()}
-          >
-            Continue
-          </Button>
+          <div className="pt-4">
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-slate-600 to-slate-500 hover:from-slate-500 hover:to-slate-400 text-white font-medium py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+              disabled={!scenario.trim()}
+            >
+              <span className="flex items-center justify-center space-x-2">
+                <span>Continue</span>
+                <Sparkles className="h-4 w-4 group-hover:animate-pulse" />
+              </span>
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
