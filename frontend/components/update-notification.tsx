@@ -34,6 +34,12 @@ const defaultUpdates: UpdateItem[] = [
         description:
             "Manually adjust criteria weights and instantly see how the final scores shift. Great for exploring different priorities.",
     },
+    {
+        icon: <Sparkles className="h-4 w-4" />,
+        title: "Export to LLM",
+        description:
+            "Generate a perfectly structured prompt to keep exploring your decision with any AI. Just copy and paste! Desktop only.",
+    },
 ]
 
 export default function UpdateNotification({
