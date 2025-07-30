@@ -3,8 +3,12 @@ import json
 from typing import Dict, List, Any
 from openai import OpenAI
 from dotenv import load_dotenv
+from utils.retry_helper import retry_with_backoff, clean_json_response
 import os
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -22,6 +26,28 @@ class DecisionEngine:
             # This is the default and can be omitted
             api_key=os.getenv("OPENAI_API_KEY"),
         )
+
+    @retry_with_backoff(max_attempts=3, initial_delay=1, backoff_factor=2)
+    def _call_api_with_retry(self, model, instructions, prompt):
+        """Wrapper to add retry logic to API calls"""
+        response = self.client.responses.create(
+            model=model,
+            instructions=instructions,
+            input=prompt,
+        )
+
+        # Clean and validate the response
+        cleaned_text = clean_json_response(response.output_text)
+
+        # Try to parse as JSON to validate
+        try:
+            parsed_json = json.loads(cleaned_text)
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON response: {cleaned_text[:200]}...")
+            raise ValueError(f"Invalid JSON response from API: {e}")
+
+        # Return the parsed JSON directly since we can't modify response.output_text
+        return parsed_json
 
     def analyze_scenario(self, scenario: str, depth: str = "balanced") -> Dict:
         """
@@ -128,19 +154,15 @@ class DecisionEngine:
             if depth == "quick":
                 chosen_model = "gpt-4o-mini-2024-07-18"
             else:
-                # chosen_model = "o4-mini-2025-04-16"
-                # gpt 4.1 test
                 chosen_model = "gpt-4.1-2025-04-14"
 
-            # chosen_model = "gpt-4.1-mini-2025-04-14"
-
             print(f"Calling model: {chosen_model} for depth: {depth}")
-            response = self.client.responses.create(
+            framework = self._call_api_with_retry(
                 model=chosen_model,
                 instructions="You are an expert decision analyst who builds structured, personalized frameworks to navigate complex choices.",
-                input=prompt,
+                prompt=prompt,
             )
-            framework = json.loads(response.output_text)
+            # framework = json.loads(response.output_text)
 
             # with open("test/framework.json", "r") as f:
             #     sample_json = json.load(f)
@@ -171,12 +193,6 @@ class DecisionEngine:
             chosen_model = "gpt-4o-mini-2024-07-18"
         else:
             chosen_model = "gpt-4.1-2025-04-14"
-
-        example_rationale = (
-            "General assessment based on typical preferences"
-            if skip_questions
-            else "Explanation based on user's stated preferences"
-        )
 
         example_strengths = (
             "Key advantages for typical users"
@@ -258,13 +274,13 @@ class DecisionEngine:
 
         try:
             print(f"Calling model: {chosen_model} for evaluation")
-            response = self.client.responses.create(
+            evaluation = self._call_api_with_retry(
                 model=chosen_model,
                 instructions="You are an expert decision analyst. Always provide raw scores for each option-criterion combination.",
-                input=prompt,
+                prompt=prompt,
             )
 
-            evaluation = json.loads(response.output_text)
+            # evaluation = json.loads(response.output_text)
             evaluation["model_used"] = chosen_model
             evaluation["skipped_questions"] = skip_questions
 

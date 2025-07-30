@@ -215,24 +215,22 @@ export default function Home() {
       </div>
 
       {/* Progress indicator */}
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
-        <div className="bg-slate-900/90 backdrop-blur-md rounded-full px-4 py-2 border border-slate-800/50">
-          <div className="flex items-center space-x-2 text-xs text-slate-400">
-            <div
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep === "scenario" ? "bg-slate-300" : "bg-slate-600"
-                }`}
-            />
-            <div
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep === "questions" ? "bg-slate-300" : "bg-slate-600"
-                }`}
-            />
-            <div
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep === "results" ? "bg-slate-300" : "bg-slate-600"
-                }`}
-            />
+      {currentStep !== "scenario" && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
+          <div className="bg-slate-900/90 backdrop-blur-md rounded-full px-4 py-2 border border-slate-800/50">
+            <div className="flex items-center space-x-2 text-xs text-slate-400">
+              <div
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep === "questions" ? "bg-slate-300" : "bg-slate-600"
+                  }`}
+              />
+              <div
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep === "results" ? "bg-slate-300" : "bg-slate-600"
+                  }`}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Update Notification */}
       <UpdateNotification />

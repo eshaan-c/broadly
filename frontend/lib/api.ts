@@ -1,5 +1,6 @@
 // frontend/lib/api.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000/api';
+import { rateLimiter } from './rate-limiter';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api';
 
 interface AnalyzeRequest {
     scenario: string;
@@ -78,6 +79,11 @@ interface EvaluateResponse {
 
 class DecisionAPI {
     private async fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
+        // Check rate limit before making request
+        if (!rateLimiter.isAllowed(endpoint, 3, 60000)) { // 3 requests per minute
+            throw new Error('Please slow down! Too many requests. Try again in a moment.');
+        }
+
         try {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 ...options,
@@ -87,8 +93,12 @@ class DecisionAPI {
                 },
             });
 
+            if (response.status === 429) {
+                throw new Error('Server is busy. Please try again in a moment.');
+            }
+
             if (!response.ok) {
-                throw new Error(`API error: ${response.status} ${response.statusText}`);
+                throw new Error(`Request failed: ${response.statusText}`);
             }
 
             return await response.json();
