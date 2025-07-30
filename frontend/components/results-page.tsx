@@ -274,9 +274,9 @@ export default function ResultsPage({ result, onBack }: ResultsPageProps) {
             {/* Detailed Criteria Analysis - Only show if data exists */}
             {result.criteriaComparisons && result.criteriaComparisons.length > 0 && (
               <div className="space-y-6">
-                <h3 className="text-lg md:text-xl font-semibold text-slate-200">
+                {/* <h3 className="text-lg md:text-xl font-semibold text-slate-200">
                   Criteria Performance Breakdown
-                </h3>
+                </h3> */}
 
                 <CriteriaComparisonGrid sortedOptions={sortedOptions} result={result} />
               </div>

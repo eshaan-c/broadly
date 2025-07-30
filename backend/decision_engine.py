@@ -109,7 +109,7 @@ class DecisionEngine:
 
         QUESTION TYPES:
         - scale: Use for measuring importance/comfort levels (always include min, max, minLabel, maxLabel)
-        - mcq: Multiple choice. Use for yes/no preferences or more nuanced options
+        - mcq: Multiple choice. Use for yes/no preferences or more nuanced options. No 'Other' option.
         - rank: Use ONLY for ranking abstract priorities (never the actual options)
         - text: Use for context the AI cannot infer
 
@@ -124,7 +124,7 @@ class DecisionEngine:
             ],
             "criteria": [
             {{
-                "name": "",
+                "name": "", // Capitalized
                 "description": "",
                 "weight": float,  // Each weight must be between 0 and 1 and all weights must sum to exactly 1.0
                 "category": "financial|practical|emotional|strategic"
@@ -145,7 +145,7 @@ class DecisionEngine:
             "context_factors": []
         }}
 
-        Ensure exactly {config['questions']} questions with at least 2 non-scale types.
+        Ensure exactly {config['questions']} questions with diverse types.
         Output must be valid JSON only. Do not include markdown or explanations.
         """
 
