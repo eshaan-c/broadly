@@ -105,7 +105,7 @@ export default function UpdateNotification({
                                     </div>
                                     <div>
                                         <h3 className="text-sm font-semibold text-emerald-400">Try out these new features!</h3>
-                                        <p className="text-xs text-slate-400">{version}</p>
+                                        {/* <p className="text-xs text-slate-400">{version}</p> */}
                                     </div>
                                 </div>
                                 <Button

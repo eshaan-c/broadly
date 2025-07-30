@@ -140,12 +140,12 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading = f
           >
             <EyeOff className="mr-2 h-4 w-4" />
             <div className="flex flex-col items-start">
-              <span className="text-sm font-medium">Blindfold Mode</span>
+              <span className="text-sm font-medium">Skip Questions</span>
               <span className="text-xs text-slate-400 group-hover:text-slate-300">AI decides without user bias</span>
             </div>
-            <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
+            {/* <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
               BETA
-            </div>
+            </div> */}
           </Button>
         </div>
 
@@ -171,11 +171,11 @@ export default function QuestionsPage({ questions, onSubmit, onBack, loading = f
           >
             <div className="flex items-center justify-center w-full relative">
               <EyeOff className="mr-2 h-4 w-4 flex-shrink-0" />
-              <span className="font-medium">Blindfold Mode</span>
-              <span className="ml-2 text-xs text-slate-400 whitespace-nowrap">No user input</span>
-              <div className="absolute -top-1 right-2 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
+              <span className="font-medium">Skip Questions</span>
+              <span className="ml-2 text-s text-slate-400 whitespace-nowrap">(AI evaluation)</span>
+              {/* <div className="absolute right-0 bg-blue-500 text-white text-xs px-3 py-0.5 rounded-full font-bold">
                 BETA
-              </div>
+              </div> */}
             </div>
           </Button>
         </div>
