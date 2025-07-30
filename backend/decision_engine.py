@@ -124,7 +124,7 @@ class DecisionEngine:
             ],
             "criteria": [
             {{
-                "name": "", // Capitalized
+                "name": "", // Capitalize first letters
                 "description": "",
                 "weight": float,  // Each weight must be between 0 and 1 and all weights must sum to exactly 1.0
                 "category": "financial|practical|emotional|strategic"
